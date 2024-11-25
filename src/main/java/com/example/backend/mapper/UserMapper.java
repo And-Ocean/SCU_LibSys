@@ -2,7 +2,12 @@ package com.example.backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.backend.entity.User;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User>{
@@ -14,6 +19,7 @@ public interface UserMapper extends BaseMapper<User>{
     @Select("SELECT * FROM user WHERE username = #{username}")
     User findByUserName(String username);
     @Insert("INSERT INTO user (email, username, password, role) VALUES(#{email}, #{username}, #{password}, #{role})")
+
     //@Options(useGeneratedKeys = true, keyProperty = "user_id")
     int insertUser(String email, String username,String password, int role);
     @Update("UPDATE user SET password = #{password} WHERE email = #{email} and username=#{username}")

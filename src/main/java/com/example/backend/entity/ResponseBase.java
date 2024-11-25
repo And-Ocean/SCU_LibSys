@@ -14,7 +14,7 @@ public class ResponseBase {
     protected String message;
     protected ArrayList<Object> data;
 
-    public ResponseBase () {
+    public ResponseBase() {
         this.status = 0;
         this.message = "No override Msg";
         this.data = new ArrayList<>();

@@ -1,13 +1,11 @@
 package com.example.backend.services;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.backend.mapper.LeaveApprovalMapper;
-import com.example.backend.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
 import com.example.backend.entity.LeaveApprovalRecord;
 import com.example.backend.entity.ResponseBase;
+import com.example.backend.mapper.LeaveApprovalMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
