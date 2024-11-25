@@ -1,12 +1,13 @@
 
 CREATE TABLE User (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,                 
-    username VARCHAR(255) NOT NULL UNIQUE,  
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) UNIQUE ,
+    username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    nick_name VARCHAR(255) NOT NULL,   
-    phone VARCHAR(255) NOT NULL,                                   
-    sex VARCHAR(255) NOT NULL,
-    address VARCHAR(255) NOT NULL,                     
+    nick_name VARCHAR(255),
+    phone VARCHAR(255),
+    sex VARCHAR(255),
+    address VARCHAR(255),
     role INT NOT NULL        -- 0为读者1为管理员
 );
 
