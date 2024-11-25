@@ -136,14 +136,10 @@ public class Auth {
                 if (roleName.equals("admin")) {
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-<<<<<<< Updated upstream
-                            "/dashboard", "/guide", "/dragable", "/copy", "/userInfo",
-                            "/menu", "/projectboard", "/table", "/todoList", "/form",
-=======
-                            "/dashboard", "/guide", "/dragable", "/copy", "/role",
-                            "/menu", "/projectboard", "/table", "/todoList", "/leaveApproval", "/form",
->>>>>>> Stashed changes
-                            "/cropper", "/personal");
+                            "/dashboard", "/guide", "/dragable","/calendar", "/copy","/zip",
+                            "/menu","/excel", "/projectboard", "/table", "/form","/qrcode","/editor","/upload", "/cropper", "/personal",
+                            "/role","/worker","/leaveApproval","/todoList"
+                    );
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
@@ -155,9 +151,9 @@ public class Auth {
                 } else if (roleName.equals("manager")) {
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/dashboard", "/guide", "/dragable", "/calendar", "/copy",
-                            "/zip", "/excel", "/table", "/todoList", "/leaveApproval", "/projectboard",
-                            "/form","/qrcode", "/editor", "/upload", "/cropper", "/personal");
+                            "/dashboard", "/guide", "/dragable", "/calendar", "/worker",
+                            "/copy","/zip", "/excel", "/table", "/todoList", "/projectboard",
+                            "/form","/qrcode", "/editor", "/upload", "/cropper", "/personal","/leaveApproval");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
@@ -169,7 +165,7 @@ public class Auth {
                 } else {
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/dashboard", "/userInfo", "/menu", "/personal","/dragable");
+                            "/dashboard", "/userInfo", "/menu", "/personal","/dragable","/todoList","/leaveApproval");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
