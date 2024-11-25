@@ -18,8 +18,10 @@ public interface UserMapper extends BaseMapper<User>{
     User findByEmail(String email);
     @Select("SELECT * FROM user WHERE username = #{username}")
     User findByUserName(String username);
-    @Insert("INSERT INTO user (email, username, password, role) VALUES(#{email}, #{username}, #{password}, #{role})")
 
+    @Select("SELECT * FROM user")
+    List<User> findAllUser();
+    @Insert("INSERT INTO user (email, username, password, role) VALUES(#{email}, #{username}, #{password}, #{role})")
     //@Options(useGeneratedKeys = true, keyProperty = "user_id")
     int insertUser(String email, String username,String password, int role);
     @Update("UPDATE user SET password = #{password} WHERE email = #{email} and username=#{username}")
