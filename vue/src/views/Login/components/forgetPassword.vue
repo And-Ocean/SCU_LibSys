@@ -1,8 +1,11 @@
 <template>
   <div class="form-container">
     <el-form v-if="showReset" ref="resetRef" :model="resetForm" status-icon :hide-required-asterisk="true" :rules="rules" label-width="100px" class="login-form">
+      <el-form-item label="账号" prop="username">
+        <el-input v-model="resetForm.username" autocomplete="off" placeholder="请输入找回账号"></el-input>
+      </el-form-item>
       <el-form-item label="邮箱" prop="email">
-        <el-input v-model="resetForm.email" autocomplete="off" placeholder="请输入邮箱">
+        <el-input v-model="resetForm.email" autocomplete="off" placeholder="请输入绑定邮箱">
           <template #append>
             <el-button :disabled="sendingCode" @click="handleGetCaptcha">{{ codeText }}</el-button>
           </template>
@@ -37,7 +40,8 @@ import Service from '../api/index'
 
 interface stateType {
   resetForm: {
-    email: string
+    username: string
+    email : string
     captcha: number | null
     password: string
     checkPass: string
@@ -60,7 +64,8 @@ export default defineComponent({
     const resetRef = ref()
     const state = reactive<stateType>({
       resetForm: {
-        email: '',
+        username: '',
+        email : '',
         captcha: null,
         password: '',
         checkPass: ''
@@ -95,12 +100,12 @@ export default defineComponent({
         if (!email) {
           ElMessage({
             type: 'warning',
-            message: '请输入注册邮箱'
+            message: '请输入绑定邮箱'
           })
           return false
         }
         const data = {
-          email
+          email: email
         }
         const res = await Service.postCaptcha(data)
         if (res.status === 0) {
@@ -129,8 +134,9 @@ export default defineComponent({
       resetRef.value.validate(async (valid: any) => {
         if (valid) {
           try {
-            const { email, password, captcha } = state.resetForm
+            const { username, email, password, captcha } = state.resetForm
             const data = {
+              username,
               email,
               // password,
               password: encrypt(password),
@@ -183,6 +189,8 @@ export default defineComponent({
         { min: 6, max: 10, message: '长度在 6 到 10 个字符', trigger: 'blur' }
       ],
       checkPass: [{ validator: validatePass2, trigger: 'blur' }],
+      username:[
+        { required: true, type: 'string', message: '请输入注册账号', trigger: 'blur'}],
       email: [
         { required: true, message: '请输入注册邮箱', trigger: 'change' },
         { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }

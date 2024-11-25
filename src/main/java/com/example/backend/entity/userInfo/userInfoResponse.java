@@ -48,11 +48,14 @@ public class userInfoResponse {
 
     // 内部类 Data
     public static class Data {
-        private String userName;
+        private String nickName;
         private String roleName;
-        private String userDepartment;
-        private String userIntro;
+
+
+
+        private String userSex;
         private String userPhone;
+        private String userAddress;
         public String getUserPhone() {
             return userPhone;
         }
@@ -61,32 +64,21 @@ public class userInfoResponse {
             this.userPhone = userPhone;
         }
 
-        public String getUserName() {
-            return userName;
+        public String getNickName() {
+            return nickName;
         }
 
-        public void setUserName(String userName) {
-            this.userName = userName;
+        public void setNickName(String nickName) {
+            this.nickName = nickName;
         }
 
-        public String getUserDepartment() {
-            return userDepartment;
-        }
+        public String getUserSex() {return userSex;}
 
-        public void setUserDepartment(String userDepartment) {
-            this.userDepartment = userDepartment;
-        }
+        public void setUserSex(String userSex) {this.userSex = userSex;}
 
-        public String getUserIntro() {
-            return userIntro;
-        }
+        public String getUserAddress() {return userAddress;}
 
-        public void setUserIntro(String userIntro) {
-            this.userIntro = userIntro;
-        }
-
-        public Data() {
-        }
+        public void setUserAddress(String userAddress) {this.userAddress = userAddress;}
 
         public String getRoleName() {
             return roleName;
@@ -95,5 +87,6 @@ public class userInfoResponse {
         public void setRoleName(String roleName) {
             this.roleName = roleName;
         }
+        public Data() {}
     }
 }

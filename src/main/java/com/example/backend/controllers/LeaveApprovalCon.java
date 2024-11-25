@@ -1,6 +1,6 @@
 package com.example.backend.controllers;
 
-import com.example.backend.entity.ReponseBase;
+import com.example.backend.entity.ResponseBase;
 import com.example.backend.entity.LeaveApprovalRecord;
 import com.example.backend.services.LeaveApprovalService;
 import com.example.backend.mapper.LeaveApprovalMapper;
@@ -19,8 +19,8 @@ public class LeaveApprovalCon {
     private LeaveApprovalService leave_service;
 
     @PostMapping("/getLeaveRecord")
-    public ReponseBase getLeaveRecord() {
-        ReponseBase res = new ReponseBase();
+    public ResponseBase getLeaveRecord() {
+        ResponseBase res = new ResponseBase();
         List<LeaveApprovalRecord> records = leave_service.getAllRecords();
 
         for (LeaveApprovalRecord record : records) {
@@ -30,21 +30,21 @@ public class LeaveApprovalCon {
     }
 
     @PostMapping("/modifyLeaveRecord")
-    public ReponseBase modifyLeaveRecord(@RequestBody LeaveApprovalRecord record) {
+    public ResponseBase modifyLeaveRecord(@RequestBody LeaveApprovalRecord record) {
         int res_code = leave_service.updateLeaveApprovalRecord(record);
-        return new ReponseBase();
+        return new ResponseBase();
     }
 
     @PostMapping("/addLeaveRecord")
-    public ReponseBase addLeaveRecord(@RequestBody LeaveApprovalRecord record) {
+    public ResponseBase addLeaveRecord(@RequestBody LeaveApprovalRecord record) {
         int res_code = leave_service.insertLeaveApprovalRecord(record);
-        return new ReponseBase();
+        return new ResponseBase();
     }
 
 
     @PostMapping("/deleteLeaveRecord")
-    public ReponseBase deleteLeaveRecord(@RequestBody LeaveApprovalRecord record) {
+    public ResponseBase deleteLeaveRecord(@RequestBody LeaveApprovalRecord record) {
         int res_code = leave_service.deleteRecord(record);
-        return new ReponseBase();
+        return new ResponseBase();
     }
 }

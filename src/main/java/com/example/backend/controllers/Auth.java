@@ -42,9 +42,9 @@ public class Auth {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         try {
             //获取登录信息
-            String email = request.getEmail();
+            String username = request.getUsername();
             String password = request.getPassword();
-            int authenticatedId = userService.login(email, password);
+            int authenticatedId = userService.login(username, password);
             if (authenticatedId>0) {//这里获取的ID必须大于0
                 String accessToken = accessService.generateAccessToken(32);
                 boolean isStored = accessService.storeAccessToken(authenticatedId,accessToken);
@@ -91,18 +91,23 @@ public class Auth {
     public ResponseEntity<userInfoResponse> userInfo(@RequestBody userInfoRequest request) {
         try {
             //获取邮箱
-            String email = request.getEmail();
-            User userInfo = userService.userInfo(email);
+            String username = request.getUsername();
+            User userInfo = userService.userInfo(username);
             if (userInfo!=null) {
                 userInfoResponse.Data userInfoResponseData = new userInfoResponse.Data();
-                userInfoResponseData.setRoleName(userInfo.getRole());
-                userInfoResponseData.setUserName(userInfo.getUsername());
-                userInfoResponseData.setUserIntro(userInfo.getIntro());
+                if(userInfo.getRole()==1) {
+                    userInfoResponseData.setRoleName("admin");
+                }
+                else{
+                    userInfoResponseData.setRoleName("student");
+                }
+                userInfoResponseData.setNickName(userInfo.getNickname());
+                userInfoResponseData.setUserSex(userInfo.getSex());
                 userInfoResponseData.setUserPhone(userInfo.getPhone());
-                userInfoResponseData.setUserDepartment(userInfo.getDepartment());
+                userInfoResponseData.setUserAddress(userInfo.getAddress());
                 userInfoResponse response = new userInfoResponse(
                         0,
-                        "获取职位信息成功",
+                        "获取用户信息成功",
                         true,
                         userInfoResponseData
                 );
@@ -111,7 +116,7 @@ public class Auth {
                 // 构建失败响应
                 userInfoResponse response = new userInfoResponse(
                         1,
-                        "获取职位信息失败",
+                        "获取用户信息失败",
                         false,
                         null
                 );
@@ -131,37 +136,18 @@ public class Auth {
     public ResponseEntity<AuthedRoutesResponse> autheredRoutes(@RequestBody AuthedRoutesRequest request) {
         //获取邮箱
         try{
-            String roleName = request.getRoleName();
-            if (roleName != null) {
-                if (roleName.equals("admin")) {
+            String role = request.getRoleName();
+            if(role!=null){
+                if (role.equals("admin")) {//为管理员
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-<<<<<<< Updated upstream
-                            "/dashboard", "/guide", "/dragable", "/copy", "/userInfo",
-                            "/menu", "/projectboard", "/table", "/todoList", "/form",
-=======
                             "/dashboard", "/guide", "/dragable", "/copy", "/role",
                             "/menu", "/projectboard", "/table", "/todoList", "/leaveApproval", "/form",
->>>>>>> Stashed changes
                             "/cropper", "/personal");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
-                            "获取职位信息成功",
-                            true,
-                            data
-                    );
-                    return ResponseEntity.status(HttpStatus.OK).body(response);
-                } else if (roleName.equals("manager")) {
-                    AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
-                    List<String> authedRoutes = Arrays.asList(
-                            "/dashboard", "/guide", "/dragable", "/calendar", "/copy",
-                            "/zip", "/excel", "/table", "/todoList", "/leaveApproval", "/projectboard",
-                            "/form","/qrcode", "/editor", "/upload", "/cropper", "/personal");
-                    data.setAuthedRoutes(authedRoutes);
-                    AuthedRoutesResponse response = new AuthedRoutesResponse(
-                            0,
-                            "获取职位信息成功",
+                            "获取身份信息成功",
                             true,
                             data
                     );
@@ -169,11 +155,11 @@ public class Auth {
                 } else {
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/dashboard", "/userInfo", "/menu", "/personal","/dragable");
+                            "/dashboard", "/userInfo", "/menu", "/personal","/dragable","/todoList", "/leaveApproval");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
-                            "获取职位信息成功",
+                            "获取身份信息成功",
                             true,
                             data
                     );
@@ -183,7 +169,7 @@ public class Auth {
                 // 构建失败响应
                 AuthedRoutesResponse response = new AuthedRoutesResponse(
                         1,
-                        "获取职位信息失败",
+                        "获取身份信息失败",
                         false,
                         null
                 );
@@ -204,12 +190,13 @@ public class Auth {
         try {
             //获取邮箱
             String email = request.getEmail();
+            String username = request.getUsername();
             String password = request.getPassword();
             //这里逻辑要改
             int captcha = request.getCaptcha();
             int isVerified = captchaService.verifyCaptcha(email, captcha);
             if (isVerified == 0) {
-                int isRegistered = userService.register(email, password);
+                int isRegistered = userService.register(email,username, password);
                 if (isRegistered > 0) {
                     RegisterResponse response = new RegisterResponse(
                             0,
@@ -222,7 +209,7 @@ public class Auth {
                     // 构建失败响应
                     RegisterResponse response = new RegisterResponse(
                             1,
-                            "注册失败",
+                            "注册失败(该账号已被注册)",
                             false,
                             null
                     );
@@ -263,7 +250,7 @@ public class Auth {
             //获取邮箱
             String email = request.getEmail();
             //生成验证码存到会话或者缓存服务器
-            String subject ="【XM07】OA办公系统";
+            String subject ="SCU_图书馆系统";
             String content ="（60s内有效）验证码：";
             int captcha = new Random().nextInt(1000000);
             //通过QQ邮箱发送给用户
@@ -301,12 +288,13 @@ public class Auth {
         try {
             //获取信息
             String email = request.getEmail();
+            String username = request.getUsername();
             String password = request.getPassword();
             int captcha = request.getCaptcha();
             //验证验证码
             int isVerified = captchaService.verifyCaptcha(email, captcha);
             if (isVerified == 0) {
-                int isReset = userService.resetPassword(email, password);
+                int isReset = userService.resetPassword(email,username, password);
                 if (isReset > 0) {
                     resetPasswordResponse response = new resetPasswordResponse(
                             0,
@@ -319,7 +307,7 @@ public class Auth {
                     // 构建失败响应
                     resetPasswordResponse response = new resetPasswordResponse(
                             1,
-                            "重置密码失败",
+                            "重置密码失败(该账号可能不在数据库中)",
                             false,
                             null
                     );

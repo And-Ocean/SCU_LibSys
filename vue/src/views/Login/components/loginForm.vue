@@ -1,11 +1,11 @@
 <template>
   <div class="form-container">
     <el-form v-if="showLogin" ref="loginFormRef" :model="loginForm" status-icon :hide-required-asterisk="true" :rules="rules" label-width="100px" class="login-form">
-      <el-form-item label="账号" prop="email">
-        <el-input v-model="loginForm.email" autocomplete="off" placeholder="请输入登录邮箱(super@outlook.com)"></el-input>
+      <el-form-item label="账号" prop="username">
+        <el-input v-model="loginForm.username" autocomplete="off" placeholder="请输入注册账号"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="loginForm.password" type="password" autocomplete="off" placeholder="请输入密码(123456)"></el-input>
+        <el-input v-model="loginForm.password" type="password" autocomplete="off" placeholder="请输入密码"></el-input>
       </el-form-item>
 
       <el-form-item>
@@ -19,8 +19,12 @@
       </el-form-item>
     </el-form>
     <el-form v-if="!showLogin" ref="registerRef" :model="registerForm" status-icon :hide-required-asterisk="true" :rules="rules" label-width="100px" class="login-form">
+      <el-form-item label="账号" prop="username">
+        <el-input v-model="registerForm.username" autocomplete="off" placeholder="请输入注册账号">
+        </el-input>
+      </el-form-item>
       <el-form-item label="邮箱" prop="email">
-        <el-input v-model="registerForm.email" autocomplete="off" placeholder="请输入注册邮箱">
+        <el-input v-model="registerForm.email" autocomplete="off" placeholder="请输入绑定邮箱">
           <template #append>
             <el-button :disabled="sendingCode" @click="handleGetCaptcha">{{ codeText }}</el-button>
           </template>
@@ -57,11 +61,12 @@ import Service from '../api/index'
 
 interface stateType {
   loginForm: {
-    email: string
+    username: string
     password: string
   }
   registerForm: {
     email: string
+    username: string
     captcha: number | null
     password: string
     checkPass: string
@@ -84,11 +89,12 @@ export default defineComponent({
     const codeText = ref('获取验证码')
     const state = reactive<stateType>({
       loginForm: {
-        email: '',
+        username: '',
         password: ''
       },
       registerForm: {
         email: '',
+        username: '',
         captcha: null,
         password: '',
         checkPass: ''
@@ -122,6 +128,8 @@ export default defineComponent({
         { min: 6, max: 10, message: '长度在 6 到 10 个字符', trigger: 'blur' }
       ],
       checkPass: [{ validator: validatePass2, trigger: 'blur' }],
+      username:[
+        { required: true, type: 'string',message: '请输入注册账号', trigger: 'blur'}],
       email: [
         { required: true, message: '请输入注册邮箱', trigger: 'change' },
         { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
@@ -139,14 +147,14 @@ export default defineComponent({
       loginFormRef.value.validate(async (valid: any) => {
         if (valid) {
           try {
-            const { email, password } = state.loginForm
+            const { username, password } = state.loginForm
             const data = {
-              email,
+              username,
               // password加密由后端处理
               password: encrypt(password)
             }
             const res = await Service.postLogin(data)
-            const userInfo = await Service.postAuthUserInfo({ email })
+            const userInfo = await Service.postAuthUserInfo({ username })
             const accessToken = res?.data?.accessToken ?? null
             if (accessToken) {
               // 将角色存储到全局vuex roles
@@ -188,10 +196,11 @@ export default defineComponent({
       registerRef.value.validate(async (valid: any) => {
         if (valid) {
           try {
-            const { email, password, captcha } = state.registerForm
+            const { email, username, password, captcha } = state.registerForm
             const data = {
               email,
               captcha,
+              username,
               // password
               password: encrypt(password)
             }
@@ -251,7 +260,7 @@ export default defineComponent({
         if (!email) {
           ElMessage({
             type: 'warning',
-            message: '请输入注册邮箱'
+            message: '请输入绑定邮箱'
           })
           return false
         }

@@ -6,19 +6,19 @@ import permissionStateTypes from './types'
 import RootStateTypes from '../../types'
 import Service from './api'
 
-const username = localStorage.getItem('username') || ''
+const nickname = localStorage.getItem('nickname') || ''
 const role = localStorage.getItem('role') || ''
-const department = localStorage.getItem('department') || ''
-const intro = localStorage.getItem('intro') || ''
+const address = localStorage.getItem('department') || ''
+const sex = localStorage.getItem('sex') || ''
 const phone = localStorage.getItem('phone') || ''
 // create a new Store Modules.
 const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
   namespaced: true,
   state: {
-    username,//用户名
+    nickname,//用户名
     role, // 用户包含的角色,
-    department,//用户部门
-    intro,//用户介绍
+    address,//用户地址
+    sex,//用户性别
     phone,// 用户手机号
     //暂时不用permissions: [],
     accessRoutes: constantRoutes, // 可访问路由集合
@@ -26,21 +26,21 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     authedRoutes: []
   },
   mutations: {
-    setUsername: (state: permissionStateTypes, { userName }) => {
-      state.username = userName
-      console.log(state.username)
+    setNickname: (state: permissionStateTypes, { nickName }) => {
+      state.nickname = nickName
+      console.log(state.nickname)
     },
     setRoles: (state: permissionStateTypes, { roleName }) => {
       state.role = roleName
       console.log(state.role)
     },
-    setDepartment: (state: permissionStateTypes, { userDepartment }) => {
-      state.department = userDepartment
-      console.log(state.department)
+    setAddress: (state: permissionStateTypes, { userAddress }) => {
+      state.address = userAddress
+      console.log(state.address)
     },
-    setIntro: (state: permissionStateTypes, { userIntro }) => {
-      state.intro = userIntro
-      console.log(state.intro)
+    setSex: (state: permissionStateTypes, { userSex }) => {
+      state.sex = userSex
+      console.log(state.sex)
     },
     setPhone: (state: permissionStateTypes, { userPhone }) => {
       state.phone = userPhone
@@ -67,11 +67,7 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     getPermissonRoutes({ commit }, payload: any) {
       // api request
       const data = {
-        userName: payload.userName,
         roleName: payload.roleName,
-        userDepartment: payload.userDepartment,
-        userIntro: payload.userIntro,
-        userPhone:payload.userPhone
       }
       // 后端根据角色名称，查询授权菜单
       Service.postAuthPermission(data).then((res) => {
@@ -141,21 +137,21 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
 
     },
     getUserInfos({ commit }, payload: any) {
-      if ('userName' in payload) {
-        localStorage.setItem('username', payload.userName);
-        commit('setUsername', payload);
+      if ('nickName' in payload) {
+        localStorage.setItem('nickname', payload.userName);
+        commit('setNickname', payload);
       }
-      if ('userDepartment' in payload) {
-        localStorage.setItem('department', payload.userDepartment);
-        commit('setDepartment', payload);
+      if ('userSex' in payload) {
+        localStorage.setItem('sex', payload.userDepartment);
+        commit('setSex', payload);
       }
       if ('userPhone' in payload) {
         localStorage.setItem('phone', payload.userPhone);
         commit('setPhone', payload);
       }
-      if ('userIntro' in payload) {
-        localStorage.setItem('intro', payload.userIntro);
-        commit('setIntro', payload);
+      if ('userAddress' in payload) {
+        localStorage.setItem('address', payload.userIntro);
+        commit('setAddress', payload);
       }
     }
 
@@ -167,17 +163,17 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     authedRoutes(state: permissionStateTypes) {
       return state.authedRoutes
     },
-    getUsername(state: permissionStateTypes) {
-      return state.username
+    getNickname(state: permissionStateTypes) {
+      return state.nickname
     },
     getRoles(state: permissionStateTypes) {
       return state.role
     },
-    getDepartment(state: permissionStateTypes) {
-      return state.department
+    getSex(state: permissionStateTypes) {
+      return state.sex
     },
-    getIntro(state: permissionStateTypes) {
-      return state.intro
+    getAddress(state: permissionStateTypes) {
+      return state.address
     },
     getPhone(state: permissionStateTypes) {
       return state.phone

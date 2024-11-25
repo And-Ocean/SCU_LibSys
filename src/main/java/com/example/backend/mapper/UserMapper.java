@@ -7,16 +7,17 @@ import org.apache.ibatis.annotations.*;
 @Mapper
 public interface UserMapper extends BaseMapper<User>{
 
-    @Select("SELECT * FROM user_infos WHERE user_id = #{user_id}")
-    User findByUserId(int user_id);
-    @Select("SELECT * FROM user_infos WHERE email = #{email}")
+    @Select("SELECT * FROM user WHERE id = #{id}")
+    User findByUserId(int id);
+    @Select("SELECT * FROM user WHERE email = #{email}")
     User findByEmail(String email);
-
-    @Insert("INSERT INTO user_infos (email, password, userInfo) VALUES(#{email}, #{password}, #{userInfo})")
+    @Select("SELECT * FROM user WHERE username = #{username}")
+    User findByUserName(String username);
+    @Insert("INSERT INTO user (email, username, password, role) VALUES(#{email}, #{username}, #{password}, #{role})")
     //@Options(useGeneratedKeys = true, keyProperty = "user_id")
-    int insertUser(String email, String password, String role);
-    @Update("UPDATE user_infos SET password = #{password} WHERE email = #{email}")
-    int updatePassword(String email, String password);
-    @Update("UPDATE user_infos SET username = #{username},phone = #{phone},intro= #{intro} WHERE user_id = #{user_id}")
-    int updateUserInfo(String username, String phone,String intro, int user_id);
+    int insertUser(String email, String username,String password, int role);
+    @Update("UPDATE user SET password = #{password} WHERE email = #{email} and username=#{username}")
+    int updatePassword(String email, String username, String password);
+    @Update("UPDATE user SET nickname = #{nickname},phone = #{phone},address= #{address} WHERE id = #{id}")
+    int updateUserInfo(String nickname, String phone,String address, int id);
 }

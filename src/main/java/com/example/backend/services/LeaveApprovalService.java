@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.backend.entity.LeaveApprovalRecord;
-import com.example.backend.entity.ReponseBase;
+import com.example.backend.entity.ResponseBase;
 
 import java.util.List;
 
