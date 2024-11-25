@@ -17,31 +17,44 @@ public class adminUserInfoResponse {
     }
     // 内部类 Data
     public static class Data {
-        private String userName;
-        private String userDepartment;
-        private String userRole;
+        private String nickName;
+
+
+
+        private String userAddress;
+        private String userSex;
+        private int userRole;
         private String userPhone;
-                public String getUserName() {
-            return userName;
+
+
+        public String getNickName() {
+            return nickName;
         }
 
-        public void setUserName(String userName) {
-            this.userName = userName;
+        public void setNickName(String nickName) {
+            this.nickName = nickName;
         }
 
-        public String getUserDepartment() {
-            return userDepartment;
+        public String getUserAddress() {
+            return userAddress;
         }
 
-        public void setUserDepartment(String userDepartment) {
-            this.userDepartment = userDepartment;
+        public void setUserAddress(String userAddress) {
+            this.userAddress = userAddress;
         }
 
-        public String getUserRole() {
+        public String getUserSex() {
+            return userSex;
+        }
+
+        public void setUserSex(String userSex) {
+            this.userSex = userSex;
+        }
+        public int getUserRole() {
             return userRole;
         }
 
-        public void setUserRole(String userRoleName) {
+        public void setUserRole(int userRoleName) {
             this.userRole = userRoleName;
         }
 

@@ -32,9 +32,10 @@ public class Admin {
             List<adminUserInfoResponse.Data> data = new ArrayList<>();
             for(User user:userInfo){
                 adminUserInfoResponse.Data temp = new adminUserInfoResponse.Data();
-                temp.setUserName(user.getUsername());
-                temp.setUserDepartment(user.getDepartment());
+                temp.setNickName(user.getNickname());
+                temp.setUserSex(user.getSex());
                 temp.setUserRole(user.getRole());
+                temp.setUserAddress(user.getAddress());
                 temp.setUserPhone(user.getPhone());
                 data.add(temp);
             }
