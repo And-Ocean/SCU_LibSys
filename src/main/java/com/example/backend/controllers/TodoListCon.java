@@ -2,7 +2,6 @@ package com.example.backend.controllers;
 
 import com.example.backend.entity.ResponseBase;
 import com.example.backend.entity.TodoRecord;
-import com.example.backend.entity.ResponseBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

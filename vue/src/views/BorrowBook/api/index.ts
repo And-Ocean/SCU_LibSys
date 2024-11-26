@@ -1,85 +1,27 @@
 import request from '@/utils/request'
 
-const todolistApi = {
-  getTodolist: '/api/todolist/getRec',
+const borrowBookApi = {
+  getBooksByUserId: '/api/bookBorrow/get_books_by_user_id',
   localHost:'http://localhost:8080',
-  modifyTodolist: '/api/todolist/modifyRec',
-  addTodolist: '/api/todolist/add',
-  deleteTodo: '/api/todolist/deleteTodo'
 }
 
 
 class Service {
-  /**
-   * @description POST 用户登录接口
-   */
-  static postGetTodoList() {
+
+   static postGetBorrowedBookByUserId(data: any) {
     return request({
-      url: todolistApi.localHost + todolistApi.getTodolist,
+      url: borrowBookApi.localHost + borrowBookApi.getBooksByUserId,
       method: 'POST',
       json: true,
+      data
     }).then((res) => {
+      console.log(res)
       if (res.status === 0) {
-        console.log("postGetTodoList success")
-        return res
+        return Promise.resolve(res)
       }
-      return null
+      return Promise.reject(res)
     })
   }
 
-  static postModifyTodo(record:any) {
-    let todoList = {
-      todo_ddl: record.ddl ,
-      todo_title: record.title ,
-      todo_fin: record.status ,
-      todo_ctnt: record.content ,
-      todo_crt: record.crt ,
-      adder_id: record.adder ,
-      todo_id: record.todo_id ,
-      user_id: record.user_id ,
-    }
-    console.log(todoList)
-    return request({
-      url: todolistApi.localHost + todolistApi.modifyTodolist,
-      method: 'POST',
-      json: true,
-      data: todoList,
-    }).then((res) => {
-      if (res.status === 0) {
-        return res
-      }
-      return null
-    })
-  }
-
-  static deleteTodo(record:any) {
-    record.todo_fin = '未完成'
-    return request({
-      url: todolistApi.localHost + todolistApi.deleteTodo,
-      method: 'POST',
-      json: true,
-      data: record,
-    }).then((res) => {
-      if (res.status === 0) {
-        return res
-      }
-      return null
-    })
-  }
-
-  static addTodo(record:any) {
-    record.todo_fin = '未完成'
-    return request({
-      url: todolistApi.localHost + todolistApi.addTodolist,
-      method: 'POST',
-      json: true,
-      data: record,
-    }).then((res) => {
-      if (res.status === 0) {
-        return res
-      }
-      return null
-    })
-  }
 }
 export default Service

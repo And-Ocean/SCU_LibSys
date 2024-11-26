@@ -136,7 +136,7 @@ import Service from '../api/index'
 import {ElMessage} from "element-plus";
 
 export default defineComponent({
-  name: 'todoTableList',
+  name: 'BORROWED_BOOK',
   directives: {
     permission
   },
@@ -171,36 +171,43 @@ export default defineComponent({
 
     onMounted(() => {
       // eslint-disable-next-line no-console
-      getPersonalTodoList()
+      getBookBorrowed()
     })
+
     // methods
     const resetDateFilter = () => {
       filterTableRef.value.clearFilter('date')
     }
 
-    const getPersonalTodoList = () => {
-      console.log("getPersonalTodoList exc")
+    const getBookBorrowed = async() => {
+      console.log("getBookBorrowed exc")
+      const data = {'accessToken':sessionStorage.getItem('accessToken')}
+      const adminUserInfo = await Service.postGetBorrowedBookByUserId(data)
+
+      console.log(adminUserInfo)
+      if (adminUserInfo.status === 0) {
+        state.data = adminUserInfo.data
+      }
       try {
         Service.postGetTodoList().then((res) => {
           if (res) {
             state.tableData = []
-            console.log('getPersonalTodoList get')
+            console.log('getBookBorrowed get')
             console.log(res)
-            var data = res.data
-            for (let i = 0; i < data.length; i++) {
-              var record = {
-                ddl: data[i].todo_ddl,
-                title: data[i].todo_title,
-                status: data[i].todo_fin,
-                content: data[i].todo_ctnt,
-                crt: data[i].todo_crt,
-                adder: data[i].adder_id,
-                todo_id: data[i].todo_id,
-                user_id: data[i].user_id,
-              }
-              state.tableData.push(record)
-            }
-
+            // var data = res.data
+            // for (let i = 0; i < data.length; i++) {
+            //   var record = {
+            //     ddl: data[i].todo_ddl,
+            //     title: data[i].todo_title,
+            //     status: data[i].todo_fin,
+            //     content: data[i].todo_ctnt,
+            //     crt: data[i].todo_crt,
+            //     adder: data[i].adder_id,
+            //     todo_id: data[i].todo_id,
+            //     user_id: data[i].user_id,
+            //   }
+            //   state.tableData.push(record)
+            // }
           } else {
             console.log('getPersonalTodoList RES MISS')
           }
@@ -236,46 +243,6 @@ export default defineComponent({
       state.form = row
     }
 
-    const handleEdit = () => {
-      // eslint-disable-next-line no-console
-      state.modifyFormVisible = false
-      let record = state.form
-      state.form = {}
-      try {
-        Service.postModifyTodo(record).then((res) => {
-          if (res) {
-            // console.log(res)
-          } else {
-          }
-        });
-      } catch (err) {
-        ElMessage({
-          type: 'warning',
-          message: err.message
-        })
-      }
-    }
-    const handleDelete = (index: any, row: any) => {
-      // eslint-disable-next-line no-console
-      console.log(index, row)
-      let record = {
-        todo_id: row.todo_id
-      }
-      try {
-        Service.deleteTodo(record).then((res) => {
-          if (res) {
-            // console.log(res)
-          } else {
-          }
-        });
-      } catch (err) {
-        ElMessage({
-          type: 'warning',
-          message: err.message
-        })
-      }
-      state.tableData.splice(index, 1)
-    }
     const handleSizeChange = (val: any) => {
       // eslint-disable-next-line no-console
       console.log(`每页 ${val} 条`)
@@ -306,15 +273,6 @@ export default defineComponent({
       state.currentPage = val
       // request api to change tableData
     }
-    const onSubmit = () => {
-      // eslint-disable-next-line no-console
-      console.log('submit!')
-    }
-
-    const onAddTodo = () => {
-      // eslint-disable-next-line no-console
-      router.replace('/todoList/todoAdd')
-    }
 
     return {
       formInline,
@@ -322,10 +280,6 @@ export default defineComponent({
       ...toRefs(state),
       handleCurrentChange,
       handleSizeChange,
-      onSubmit,
-      onAddTodo,
-      handleEdit,
-      handleDelete,
       filterTableRef,
       resetDateFilter,
       clearFilter,
