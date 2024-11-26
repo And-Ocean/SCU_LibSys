@@ -12,5 +12,10 @@ import java.util.List;
 public class BookBorrowService extends ServiceImpl<BookBorrowMapper, BookBorrowedDTO> {
 
     @Autowired
-    private BookBorrowMapper bookBorrowMapper;
+    public BookBorrowMapper bookBorrowMapper;
+
+    public List<BookBorrowedDTO> getBookBorrowedList(int user_id){
+        return bookBorrowMapper.selectBookBorrowedDTO(user_id);
+    };
+
 }

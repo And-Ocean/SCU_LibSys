@@ -1,112 +1,77 @@
 <template>
   <div class="table-container">
     <el-form :inline="true" :model="formInline" class="form-inline">
-      <el-form-item>
-        <el-button type="primary" @click="onAddTodo">添加待辦事項</el-button>
-      </el-form-item>
     </el-form>
-    <el-table ref="filterTableRef" class="table-list" row-key="date" :data="tableData.filter((data) => !search || data.title.toLowerCase().includes(search.toLowerCase()))" style="width: 100%">
+    <el-table ref="filterTableRef" class="table-list" row-key="book_id" :data="tableData.filter((data) => !search || data.title.toLowerCase().includes(search.toLowerCase()))" style="width: 100%">
+      <el-table-column  width="10" ></el-table-column>
+      <el-table-column prop="title" label="书名" truncated> </el-table-column>
+      <el-table-column prop="isbn" label="ISBN" truncated> </el-table-column>
       <el-table-column
-        prop="ddl"
-        label="截止日期"
-        sortable
-        width="180"
-        column-key="ddl"
+          prop="return_time"
+          label="还书日期"
+          sortable
+          column-key="return_time"
       >
       </el-table-column>
-      <el-table-column prop="title" label="待办事项标题" width="180" truncated> </el-table-column>
-      <el-table-column prop="content" label="待办事项内容" truncated> </el-table-column>
+      <el-table-column prop="author" label="作者" width="100"> </el-table-column>
+      <el-table-column prop="publisher" label="出版社"> </el-table-column>
       <el-table-column align="right">
         <template #header>
-          <el-input v-model="search" size="mini" placeholder="输入標題字段关键字搜索" />
+          <el-input v-model="search" size="mini" placeholder="输入书名关键字搜索" />
         </template>
         <template #default="scope">
-          <el-button size="mini" @click="modifyPop(scope.row)">修改</el-button>
-          <el-button size="mini" @click="detailPop(scope.row)">查看詳情</el-button>
-          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定删除该条记录吗？" @confirm="handleDelete(scope.$index, scope.row)">
+          <el-button size="mini" @click="detailPop(scope.row)">书籍详情</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column width="120">
+        <template #default="scope">
+          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定已经还书吗？" @confirm="handleDelete(scope.$index, scope.row)">
             <template #reference>
-              <el-button size="mini" type="danger">删除</el-button>
+              <el-button size="mini" type="danger">已经还书</el-button>
             </template>
           </el-popconfirm>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="status"
-        label="状态"
-        width="100"
-        :filters="[
-          { text: '已完成', value: '已完成' },
-          { text: '未完成', value: '未完成' }
-        ]"
-        :filter-method="filterStatus"
-        filter-placement="bottom-end"
-      >
-        <template #default="scope">
-          <el-tag :type="scope.row.status === '已完成' ? 'primary' : 'success'" disable-transitions>{{ scope.row.status }}</el-tag>
-        </template>
-      </el-table-column>
     </el-table>
 
-
-    <!--    V-MODEL!!!!!-->
-    <el-dialog v-model="modifyFormVisible" title="修改待办事项">
+    <el-dialog v-model="detailFormVisible" title="书籍详情">
       <el-form :model="form">
-        <el-form-item label="标题" :label-width="formLabelWidth">
-          <el-input v-model="form.title" autocomplete="on"></el-input>
-        </el-form-item>
-        <el-form-item label="内容" :label-width="formLabelWidth">
-          <el-input v-model="form.content" autosize type="textarea"/>
-        </el-form-item>
-        <el-form-item label="截止日期" :label-width="formLabelWidth">
-          <el-input v-model="form.ddl" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="状态" :label-width="formLabelWidth">
-          <el-input v-model="form.status" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="创建日期" :label-width="formLabelWidth">
-          <el-input v-model="form.crt" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="添加者ID" :label-width="formLabelWidth">
-          <el-text class="mx-1" type="info">{{ form.adder }}</el-text>
-        </el-form-item>
-        <el-form-item label="待办事项ID" :label-width="formLabelWidth">
-          <el-text class="mx-1" type="info">{{ form.todo_id }}</el-text>
-        </el-form-item>
-        <el-form-item label="从属用戶ID" :label-width="formLabelWidth">
-          <el-text class="mx-1" type="info">{{ form.user_id }}</el-text>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="modifyFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleEdit()">确 定</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog v-model="detailFormVisible" title="待办事项详情">
-      <el-form :model="form">
-        <el-form-item label="標題&nbsp;&nbsp;" :label-width="formLabelWidth">
+        <el-form-item label="书名&nbsp;&nbsp;" :label-width="formLabelWidth">
           {{ form.title }}
         </el-form-item>
-        <el-form-item label="内容&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.content }}
+        <el-form-item label="封面&nbsp;&nbsp;" >
+          <div class="demo-image__preview">
+            <el-image
+                style="width: 100px; height: 100px"
+                :src="form.url"
+                :zoom-rate="1.2"
+                :max-scale="7"
+                :min-scale="0.2"
+                :preview-src-list="[form.url]"
+                fit="cover"
+            />
+          </div>
         </el-form-item>
-        <el-form-item label="截止日期&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.ddl }}
+        <el-form-item label="简介&nbsp;&nbsp;" :label-width="formLabelWidth">
+          还没有这个字段
         </el-form-item>
-        <el-form-item label="狀態&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.status }}
+        <el-form-item label="作者&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.author }}
         </el-form-item>
-        <el-form-item label="創建日期&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.crt }}
+        <el-form-item label="ISBN&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.isbn }}
         </el-form-item>
-        <el-form-item label="添加者ID&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.adder }}
+        <el-form-item label="价格&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.price }}
         </el-form-item>
-        <el-form-item label="待辦事項ID&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.todo_id }}
+        <el-form-item label="出版社&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{form.publisher }}
         </el-form-item>
-        <el-form-item label="從屬用戶ID&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{form.user_id }}
+        <el-form-item label="应还日期&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.return_time }}
+        </el-form-item>
+        <el-form-item label="借书时间&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.lend_time }}
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -148,10 +113,10 @@ export default defineComponent({
     const state = reactive({
       tableData: [
         {
-          ddl: '2016-05-07',
-          title: '後臺沒打開',
-          status: '上海市普陀区金沙江路 1518 弄',
-          content: '家'
+          ddl: '后台沒打开',
+          title: '后台沒打开',
+          status: '后台沒打开',
+          content: '后台沒打开'
         },
       ],
       currentPage: 1,
@@ -182,34 +147,33 @@ export default defineComponent({
     const getBookBorrowed = async() => {
       console.log("getBookBorrowed exc")
       const data = {'accessToken':sessionStorage.getItem('accessToken')}
-      const adminUserInfo = await Service.postGetBorrowedBookByUserId(data)
 
-      console.log(adminUserInfo)
-      if (adminUserInfo.status === 0) {
-        state.data = adminUserInfo.data
-      }
       try {
-        Service.postGetTodoList().then((res) => {
-          if (res) {
+        await Service.postGetBorrowedBookByUserId(data).then((res) => {
+          if (!res) {
+            //还没有借书哦
+            console.log('getBookBorrowed empty')
+          } else {
             state.tableData = []
             console.log('getBookBorrowed get')
             console.log(res)
-            // var data = res.data
-            // for (let i = 0; i < data.length; i++) {
-            //   var record = {
-            //     ddl: data[i].todo_ddl,
-            //     title: data[i].todo_title,
-            //     status: data[i].todo_fin,
-            //     content: data[i].todo_ctnt,
-            //     crt: data[i].todo_crt,
-            //     adder: data[i].adder_id,
-            //     todo_id: data[i].todo_id,
-            //     user_id: data[i].user_id,
-            //   }
-            //   state.tableData.push(record)
-            // }
-          } else {
-            console.log('getPersonalTodoList RES MISS')
+            var data = res.data[0]
+            for (let i = 0; i < data.length; i++) {
+              var record = {
+                title: data[i].title,
+                isbn: data[i].isbn,
+                status: data[i].status,
+                returned: data[i].returned,
+                lend_time: data[i].lend_time,
+                return_time: data[i].return_time,
+                publisher: data[i].publisher,
+                price: data[i].price,
+                author: data[i].author,
+                url: 'https://www.helloimg.com/i/2024/11/26/6745ccbf44f63.jpg',
+              }
+              state.tableData.push(record)
+            }
+            console.log(state.tableData)
           }
         });
       } catch (err) {
@@ -306,3 +270,15 @@ export default defineComponent({
 }
 </style>
 
+<style scoped>
+.demo-image__error .image-slot {
+  font-size: 30px;
+}
+.demo-image__error .image-slot .el-icon {
+  font-size: 30px;
+}
+.demo-image__error .el-image {
+  width: 100%;
+  height: 200px;
+}
+</style>
