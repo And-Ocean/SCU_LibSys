@@ -1,8 +1,8 @@
 <template>
   <div class="form-container">
     <el-form v-if="showLogin" ref="loginFormRef" :model="loginForm" status-icon :hide-required-asterisk="true" :rules="rules" label-width="100px" class="login-form">
-      <el-form-item label="账号" prop="username">
-        <el-input v-model="loginForm.username" autocomplete="off" placeholder="请输入注册账号"></el-input>
+      <el-form-item label="用户名" prop="username">
+        <el-input v-model="loginForm.username" autocomplete="off" placeholder="请输入用户名"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input v-model="loginForm.password" type="password" autocomplete="off" placeholder="请输入密码"></el-input>

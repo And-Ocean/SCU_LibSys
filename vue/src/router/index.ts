@@ -425,6 +425,32 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: '/BorrowBook',
+    component: layout,
+    redirect: '/BorrowBook/borrowed_list',
+    meta: {
+      title: {
+        '/zh-CN': '我的借书',
+        '/en-US': 'borrowed_list'
+      },
+      icon: 'ic ic-barrage-fill'
+    },
+    children: [
+      {
+        path: '/BorrowBook/borrowed_list',
+        name: 'borrowed_list',
+        component: () => import('@/views/BorrowBook/components/tableList.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '我的借书',
+            '/en-US': 'Todolist'
+          },
+          icon: 'ic ic-barrage-fill'
+        }
+      },
+    ]
+  },
+  {
     path: '/leaveApproval',
     component: layout,
     redirect: '/leaveApproval/leaveList',
