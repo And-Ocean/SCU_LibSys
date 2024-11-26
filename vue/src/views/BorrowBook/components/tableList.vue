@@ -169,7 +169,7 @@ export default defineComponent({
                 publisher: data[i].publisher,
                 price: data[i].price,
                 author: data[i].author,
-                url: 'https://www.helloimg.com/i/2024/11/26/6745ccbf44f63.jpg',
+                url: 'https://www.helloimg.com/i/2024/11/26/6745da68c904e.jpg',
                 lend_id: data[i].lend_id,
               }
               state.tableData.push(record)
