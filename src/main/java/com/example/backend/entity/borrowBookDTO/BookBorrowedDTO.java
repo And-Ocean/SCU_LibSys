@@ -20,9 +20,10 @@ public class BookBorrowedDTO {
     private float price;
     private String author;
     private String publisher;
+    private int lend_id;
 
     public BookBorrowedDTO(int book_id, String lend_time, String return_time, char returned, String isbn,
-                           String status, String place, String title, float price, String author, String publisher) {
+                           String status, String place, String title, float price, String author, String publisher, int lend_id) {
         this.book_id = book_id;
         this.lend_time = lend_time;
         this.return_time = return_time;
@@ -34,5 +35,6 @@ public class BookBorrowedDTO {
         this.price = price;
         this.author = author;
         this.publisher = publisher;
+        this.lend_id = lend_id;
     }
 }

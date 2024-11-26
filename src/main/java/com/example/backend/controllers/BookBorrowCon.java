@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.entity.borrowBookDTO.BookBorrowedDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -42,6 +41,19 @@ public class BookBorrowCon {
             response.setStatus(-1);
             response.setMessage(e.getMessage());
         }
+        return response;
+    }
+
+    @PostMapping("/return_by_lend_id")
+    public ResponseBase returnBookByLendId(@RequestBody BookBorrowedDTO bookBorrowedDTO) {
+        int lend_id = bookBorrowedDTO.getLend_id();
+        ResponseBase response = new ResponseBase();
+        if (lend_id <= 0) {
+            response.setStatus(-1);
+            response.setMessage("Something went wrong with lend_id, it does not exist");
+            return response;
+        }
+        bookBorrowService.returnByLendId(lend_id);
         return response;
     }
 

@@ -25,7 +25,7 @@
       </el-table-column>
       <el-table-column width="120">
         <template #default="scope">
-          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定已经还书吗？" @confirm="handleDelete(scope.$index, scope.row)">
+          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定已经还书吗？" @confirm="handleReturnBook(scope.$index, scope.row)">
             <template #reference>
               <el-button size="mini" type="danger">已经还书</el-button>
             </template>
@@ -152,11 +152,11 @@ export default defineComponent({
         await Service.postGetBorrowedBookByUserId(data).then((res) => {
           if (!res) {
             //还没有借书哦
-            console.log('getBookBorrowed empty')
+            // console.log('getBookBorrowed empty')
           } else {
             state.tableData = []
-            console.log('getBookBorrowed get')
-            console.log(res)
+            // console.log('getBookBorrowed get')
+            // console.log(res)
             var data = res.data[0]
             for (let i = 0; i < data.length; i++) {
               var record = {
@@ -170,10 +170,11 @@ export default defineComponent({
                 price: data[i].price,
                 author: data[i].author,
                 url: 'https://www.helloimg.com/i/2024/11/26/6745ccbf44f63.jpg',
+                lend_id: data[i].lend_id,
               }
               state.tableData.push(record)
             }
-            console.log(state.tableData)
+            // console.log(state.tableData)
           }
         });
       } catch (err) {
@@ -212,6 +213,25 @@ export default defineComponent({
       console.log(`每页 ${val} 条`)
       state.pageSize = val
       // request api to change tableData
+    }
+
+    const handleReturnBook = (index: any, row: any) => {
+      // eslint-disable-next-line no-console
+      // console.log(index, row)
+      try {
+        Service.returnBook(row.lend_id).then((res) => {
+          if (res) {
+            // console.log(res)
+          } else {
+          }
+        });
+      } catch (err) {
+        ElMessage({
+          type: 'warning',
+          message: err.message
+        })
+      }
+      state.tableData.splice(index, 1)
     }
 
      // 分页数据处理
@@ -253,6 +273,7 @@ export default defineComponent({
       filterHandler,
       modifyPop,
       detailPop,
+      handleReturnBook,
     }
   }
 })
