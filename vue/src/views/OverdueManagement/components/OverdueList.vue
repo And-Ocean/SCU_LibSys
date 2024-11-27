@@ -5,11 +5,12 @@
         <el-button type="primary" @click="onOverdueRequest">一键支付</el-button>
       </el-form-item>
     </el-form>
-    <el-table ref="filterTableRef" v-loading="loading" class="table-list" row-key="date" :data="tableData" style="width: 100%">
-      <el-table-column prop="due_date" label="应还日期" sortable width="180" column-key="due_date"></el-table-column>
-      <el-table-column prop="book_id" label="书籍ID" width="180" truncated> </el-table-column>
-      <el-table-column prop="return_date" label="实际还书日期" truncated> </el-table-column>
-      <el-table-column prop="reader_id" label="罚款金额" truncated> </el-table-column>
+    <el-table ref="filterTableRef" v-loading="loading" class="table-list" row-key="lend_time" :data="tableData" style="width: 100%">
+      <el-table-column prop="lend_time" label="借书时间" sortable width="180" column-key="lend_time"></el-table-column>
+      <el-table-column prop="book_id" label="书籍ID" width="180"></el-table-column>
+      <el-table-column prop="return_time" label="应还时间" width="180"></el-table-column>
+      <el-table-column prop="user_id" label="用户ID" width="180"></el-table-column>
+      <el-table-column prop="returned" label="是否归还" width="100"></el-table-column>
       <el-table-column align="right">
         <template #header>
           <el-input v-model="search" size="small" placeholder="搜索" />
@@ -24,39 +25,21 @@
           </el-popconfirm>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="overdue_status"
-        label="处理状态"
-        width="100"
-        :filters="[
-          { text: '已处理', value: '已处理' },
-          { text: '未处理', value: '未处理' }
-        ]"
-        :filter-method="filterStatus"
-        filter-placement="bottom-end"
-      >
-        <template #default="scope">
-          <el-tag :type="scope.row.status === '已处理' ? 'primary' : 'success'" disable-transitions>{{ scope.row.status }}</el-tag>
-        </template>
-      </el-table-column>
     </el-table>
 
-    <el-dialog v-model="modifyFormVisible" title="修改逾期记录">
+    <el-dialog v-model="modifyFormVisible" title="修改借书记录">
       <el-form :model="form">
         <el-form-item label="书籍ID" :label-width="formLabelWidth">
           <el-input v-model="form.book_id" autocomplete="on"></el-input>
         </el-form-item>
-        <el-form-item label="应还日期" :label-width="formLabelWidth">
-          <el-input v-model="form.due_date" autocomplete="off"></el-input>
+        <el-form-item label="应还时间" :label-width="formLabelWidth">
+          <el-input v-model="form.return_time" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="罚款金额" :label-width="formLabelWidth">
-          <el-input v-model="form.reader_id" autocomplete="on"></el-input>
+        <el-form-item label="用户ID" :label-width="formLabelWidth">
+          <el-input v-model="form.user_id" autocomplete="on"></el-input>
         </el-form-item>
-        <el-form-item label="实际还书日期" :label-width="formLabelWidth">
-          <el-input v-model="form.return_date" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="处理状态" :label-width="formLabelWidth">
-          <el-input v-model="form.status" autocomplete="off"></el-input>
+        <el-form-item label="是否归还" :label-width="formLabelWidth">
+          <el-input v-model="form.returned" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -65,22 +48,19 @@
       </div>
     </el-dialog>
 
-    <el-dialog v-model="detailFormVisible" title="逾期记录详情">
+    <el-dialog v-model="detailFormVisible" title="借书记录详情">
       <el-form :model="form">
         <el-form-item label="书籍ID" :label-width="formLabelWidth">
           {{ form.book_id }}
         </el-form-item>
-        <el-form-item label="罚款金额" :label-width="formLabelWidth">
-          {{ form.reader_id }}
+        <el-form-item label="应还时间" :label-width="formLabelWidth">
+          {{ form.return_time }}
         </el-form-item>
-        <el-form-item label="应还日期" :label-width="formLabelWidth">
-          {{ form.due_date }}
+        <el-form-item label="用户ID" :label-width="formLabelWidth">
+          {{ form.user_id }}
         </el-form-item>
-        <el-form-item label="实际还书日期" :label-width="formLabelWidth">
-          {{ form.return_date }}
-        </el-form-item>
-        <el-form-item label="处理状态" :label-width="formLabelWidth">
-          {{ form.status }}
+        <el-form-item label="是否归还" :label-width="formLabelWidth">
+          {{ form.returned }}
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -89,25 +69,33 @@
     </el-dialog>
 
     <el-pagination
-      :hide-on-single-page="true"
-      :current-page="currentPage"
-      :page-sizes="[5, 10, 15, 20, 25]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+        :hide-on-single-page="true"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20, 25]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
     >
     </el-pagination>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
+import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import permission from '@/directive/permission'
 import { ElMessage } from 'element-plus'
 import Service from '../api/index'
+
+interface Record {
+  book_id: string;
+  user_id: string;
+  lend_time: string;
+  return_time: string;
+  returned: string;
+}
 
 export default defineComponent({
   name: 'OverdueList',
@@ -117,7 +105,16 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const filterTableRef = ref()
-    const state = reactive({
+    const state = reactive<{
+      loading: boolean;
+      tableData: Record[];
+      currentPage: number;
+      pageSize: number;
+      search: string;
+      modifyFormVisible: boolean;
+      detailFormVisible: boolean;
+      form: Record;
+    }>({
       loading: false,
       tableData: [],
       currentPage: 1,
@@ -125,12 +122,19 @@ export default defineComponent({
       search: '',
       modifyFormVisible: false,
       detailFormVisible: false,
-      form: {}
-    })
+      form: {
+        book_id: '',
+        user_id: '',
+        lend_time: '',
+        return_time: '',
+        returned: ''
+      }
+    });
     const formInline = reactive({
       user: '',
       region: ''
     })
+    const formLabelWidth = '120px'
     const total = 1
 
     onMounted(() => {
@@ -139,7 +143,7 @@ export default defineComponent({
 
     // methods
     const resetDateFilter = () => {
-      filterTableRef.value.clearFilter('date')
+      filterTableRef.value.clearFilter('lend_time')
     }
 
     const getOverdueList = () => {
@@ -150,11 +154,11 @@ export default defineComponent({
             const { data } = res
             for (let i = 0; i < data.length; i++) {
               const record = {
-                book_id: data[i].bookId,
-                reader_id: data[i].readerId,
-                due_date: data[i].dueDate,
-                return_date: data[i].returnDate,
-                status: data[i].status
+                book_id: data[i].book_id,
+                user_id: data[i].user_id,
+                lend_time: data[i].lend_time,
+                return_time: data[i].return_time,
+                returned: data[i].returned
               }
               state.tableData.push(record)
             }
@@ -163,18 +167,21 @@ export default defineComponent({
           }
         })
       } catch (err) {
-        ElMessage({
-          type: 'warning',
-          message: err.message
-        })
+        if (err instanceof Error) {
+          ElMessage({
+            type: 'warning',
+            message: err.message
+          })
+        } else {
+          console.error("An unexpected error occurred:", err);
+        }
       }
     }
+
 
     const clearFilter = () => {
       filterTableRef.value.clearFilter()
     }
-
-    const filterStatus = (value: any, row: { status: any }) => row.status === value
 
     const modifyPop = (row: any) => {
       state.modifyFormVisible = true
@@ -188,8 +195,14 @@ export default defineComponent({
 
     const handleEdit = () => {
       state.modifyFormVisible = false
-      const record = state.form
-      state.form = {}
+      const record = { ...state.form } // 复制表单数据
+      state.form = { // 初始化表单对象，确保包含所有期望的属性
+        book_id: '',
+        user_id: '',
+        lend_time: '',
+        return_time: '',
+        returned: ''
+      }
       try {
         Service.postUpdateOverdueRecord(record).then((res) => {
           if (res) {
@@ -197,12 +210,18 @@ export default defineComponent({
           }
         })
       } catch (err) {
-        ElMessage({
-          type: 'warning',
-          message: err.message
-        })
+        if (err instanceof Error) {
+          ElMessage({
+            type: 'warning',
+            message: err.message
+          })
+        } else {
+          console.error("An unexpected error occurred:", err);
+        }
       }
     }
+
+
 
     const handleDelete = (index: any, row: any) => {
       const record = { book_id: row.book_id }
@@ -213,12 +232,17 @@ export default defineComponent({
           }
         })
       } catch (err) {
-        ElMessage({
-          type: 'warning',
-          message: err.message
-        })
+        if (err instanceof Error) {
+          ElMessage({
+            type: 'warning',
+            message: err.message
+          })
+        } else {
+          console.error("An unexpected error occurred:", err);
+        }
       }
     }
+
 
     const handleSizeChange = (val: any) => {
       state.pageSize = val
@@ -234,6 +258,7 @@ export default defineComponent({
 
     return {
       formInline,
+      formLabelWidth,
       total,
       ...toRefs(state),
       handleCurrentChange,
@@ -244,7 +269,6 @@ export default defineComponent({
       filterTableRef,
       resetDateFilter,
       clearFilter,
-      filterStatus,
       modifyPop,
       detailPop
     }
@@ -252,7 +276,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="stylus" scoped>
+<style scoped>
 .table-container {
   .form-inline {
     margin: 15px;
