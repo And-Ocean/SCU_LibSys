@@ -2,14 +2,14 @@
   <div class="table-container">
     <el-form :inline="true" :model="formInline" class="form-inline">
       <el-form-item>
-        <el-button type="primary" @click="onOverdueRequest">新增逾期记录</el-button>
+        <el-button type="primary" @click="onOverdueRequest">一键支付</el-button>
       </el-form-item>
     </el-form>
     <el-table ref="filterTableRef" v-loading="loading" class="table-list" row-key="date" :data="tableData" style="width: 100%">
       <el-table-column prop="due_date" label="应还日期" sortable width="180" column-key="due_date"></el-table-column>
       <el-table-column prop="book_id" label="书籍ID" width="180" truncated> </el-table-column>
-      <el-table-column prop="reader_id" label="读者ID" truncated> </el-table-column>
       <el-table-column prop="return_date" label="实际还书日期" truncated> </el-table-column>
+      <el-table-column prop="reader_id" label="罚款金额" truncated> </el-table-column>
       <el-table-column align="right">
         <template #header>
           <el-input v-model="search" size="small" placeholder="搜索" />
@@ -46,11 +46,11 @@
         <el-form-item label="书籍ID" :label-width="formLabelWidth">
           <el-input v-model="form.book_id" autocomplete="on"></el-input>
         </el-form-item>
-        <el-form-item label="读者ID" :label-width="formLabelWidth">
-          <el-input v-model="form.reader_id" autocomplete="on"></el-input>
-        </el-form-item>
         <el-form-item label="应还日期" :label-width="formLabelWidth">
           <el-input v-model="form.due_date" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="罚款金额" :label-width="formLabelWidth">
+          <el-input v-model="form.reader_id" autocomplete="on"></el-input>
         </el-form-item>
         <el-form-item label="实际还书日期" :label-width="formLabelWidth">
           <el-input v-model="form.return_date" autocomplete="off"></el-input>
@@ -70,7 +70,7 @@
         <el-form-item label="书籍ID" :label-width="formLabelWidth">
           {{ form.book_id }}
         </el-form-item>
-        <el-form-item label="读者ID" :label-width="formLabelWidth">
+        <el-form-item label="罚款金额" :label-width="formLabelWidth">
           {{ form.reader_id }}
         </el-form-item>
         <el-form-item label="应还日期" :label-width="formLabelWidth">
