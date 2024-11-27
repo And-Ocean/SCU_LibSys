@@ -490,6 +490,33 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: '/overdueManagement',
+    component: layout,
+    redirect: '/overdueManagement/overdueList',
+    meta: {
+      title: {
+        '/zh-CN': '逾期管理',
+        '/en-US': 'Overdue Management'
+      },
+      icon: 'ic ic-barrage-fill'
+    },
+    children: [
+      {
+        path: '/overdueManagement/overdueList',
+        name: 'overdueList',
+        component: () => import('@/views/OverdueManagement/components/OverdueList.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '逾期列表',
+            '/en-US': 'Overdue List'
+          },
+          icon: 'ic ic-barrage-fill'
+        }
+      }
+    ]
+  },
+
+  {
     path: '/leaveApproval',
     component: layout,
     redirect: '/leaveApproval/leaveList',
