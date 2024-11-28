@@ -451,6 +451,72 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: '/Book',
+    component: layout,
+    redirect: '/Book/bookList',
+    meta: {
+      title: {
+        '/zh-CN': '图书',
+        '/en-US': 'Book list'
+      },
+      icon: 'ic ic-barrage-fill'
+    },
+    children: [
+      {
+        path: '/Book/bookList',
+        name: 'book list',
+        component: () => import('@/views/Book/components/bookList.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '图书',
+            '/en-US': 'Book list'
+          },
+          icon: 'ic ic-barrage-fill'
+        }
+      },
+      {
+        path: '/Book/bookAdd',
+        name: 'bookAdd',
+        component: () => import( '@/views/Book/components/bookAdd.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '添加图书',
+            '/en-US': 'Add book'
+          },
+          icon: 'ic ic-stealth-fill',
+          hidden: true,
+        }
+      }
+    ]
+  },
+  {
+    path: '/overdueManagement',
+    component: layout,
+    redirect: '/overdueManagement/overdueList',
+    meta: {
+      title: {
+        '/zh-CN': '逾期管理',
+        '/en-US': 'Overdue Management'
+      },
+      icon: 'ic ic-barrage-fill'
+    },
+    children: [
+      {
+        path: '/overdueManagement/overdueList',
+        name: 'overdueList',
+        component: () => import('@/views/OverdueManagement/components/OverdueList.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '逾期列表',
+            '/en-US': 'Overdue List'
+          },
+          icon: 'ic ic-barrage-fill'
+        }
+      }
+    ]
+  },
+
+  {
     path: '/leaveApproval',
     component: layout,
     redirect: '/leaveApproval/leaveList',

@@ -14,7 +14,7 @@ public class BookEntity {
     private String status;
     private String place;
 
-    public BookEntity(int id, String isbn, String status, String place){
+    public BookEntity(int id, String isbn, String status, String place) {
         this.id = id;
         this.isbn = isbn;
         this.status = status;
