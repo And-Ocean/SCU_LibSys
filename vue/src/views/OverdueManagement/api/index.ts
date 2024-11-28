@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 const overdueManagementApi = {
   getOverdueList: '/api/overdueManagement/getOverdueList',
@@ -16,11 +16,11 @@ class Service {
       json: true
     }).then((res) => {
       if (res.status === 0) {
-        console.log('postQueryOverdueList success')
-        return res
+        console.log('postQueryOverdueList success');
+        return res;
       }
-      return null
-    })
+      return null;
+    });
   }
 
   static postAddOverdueRecord(record: any) {
@@ -31,10 +31,10 @@ class Service {
       data: record
     }).then((res) => {
       if (res.status === 0) {
-        return res
+        return res;
       }
-      return null
-    })
+      return null;
+    });
   }
 
   static postUpdateOverdueRecord(record: any) {
@@ -45,10 +45,10 @@ class Service {
       data: record
     }).then((res) => {
       if (res.status === 0) {
-        return res
+        return res;
       }
-      return null
-    })
+      return null;
+    });
   }
 
   static postDeleteOverdueRecord(record: any) {
@@ -59,11 +59,12 @@ class Service {
       data: record
     }).then((res) => {
       if (res.status === 0) {
-        return res
+        return res;
       }
-      return null
-    })
+      return null;
+    });
   }
 }
 
-export default Service
+// 导出 Service 类
+export default Service;
