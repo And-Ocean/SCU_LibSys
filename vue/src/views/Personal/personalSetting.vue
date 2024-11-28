@@ -98,11 +98,11 @@
         </div>
       </el-col>
     </el-row>
-    <el-dialog title="修改绑定邮箱" :visible.sync="showEmailDialog" width="30%" :before-close="handleClose">
-      <PersonalEmailEdit @save="handleSaveEmail" />
+    <el-dialog title="修改绑定邮箱" :visible.sync="showEmailDialog" :model-value="showEmailDialog" width="50%" :before-close="handleClose">
+      <personal-email-edit @success="handleSaveEmail"></personal-email-edit>
     </el-dialog>
-    <el-dialog title="修改密码" :visible.sync="showPasswordDialog" width="30%" :before-close="handleClose">
-      <PersonalPasswordEdit @save="handleSavePassword" />
+    <el-dialog title="修改密码" :visible.sync="showPasswordDialog" :model-value="showPasswordDialog" width="50%" :before-close="handleClose">
+      <personal-password-edit @success="handleSavePassword"></personal-password-edit>
     </el-dialog>
   </div>
 </template>
@@ -113,12 +113,14 @@ import { useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import Service from './api/index'
 import LoginService from '../Login/api/index'
+import PersonalEmailEdit  from "@/views/Personal/personalEmailEdit.vue";
 import PersonalPasswordEdit from "@/views/Personal/personalPasswordEdit.vue";
+
 // eslint-disable-next-line no-unused-vars
 type VoidNoop = (arg0?: Error) => void
 export default defineComponent({
   name: 'PersonalSetting',
-  components: {PersonalPasswordEdit},
+  components: {PersonalEmailEdit,PersonalPasswordEdit},
   setup() {
     const email = localStorage.getItem('email')
     const router = useRouter()
@@ -139,17 +141,8 @@ export default defineComponent({
       phone: '',
       accessToken: sessionStorage.getItem('accessToken')
     })
-    const resetEmailForm = reactive({
-      oldemail: '',
-      newemail: '',
-      captcha: null,
-      accessToken: sessionStorage.getItem('accessToken')
-    })
-    const resetPasswordForm = reactive({
-      oldpassword: '',
-      newpassword: '',
-      accessToken: sessionStorage.getItem('accessToken')
-    })
+
+
 
     const imageUrl = ref()
     const updateLoading = ref(false)
@@ -228,6 +221,8 @@ export default defineComponent({
       return isLt2M
     }
     const handleClose = (done: () => void) => {
+      showEmailDialog.value = false
+      showPasswordDialog.value = false
       done()
     }
 
@@ -255,8 +250,6 @@ export default defineComponent({
       settingFormRef,
       email,
       settingForm,
-      resetEmailForm,
-      resetPasswordForm,
       submitForm,
       resetForm,
       handleAvatarSuccess,
@@ -265,8 +258,6 @@ export default defineComponent({
       showPasswordDialog,
       handleSaveEmail,
       handleSavePassword,
-      submitEmailForm,
-      submitPasswordForm,
       rules,
       imageUrl,
       ...toRefs(noticeSwitch),

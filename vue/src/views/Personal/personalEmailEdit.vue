@@ -1,40 +1,110 @@
 <template>
-    <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="100px" title="ÐÞ¸Ä°ó¶¨ÓÊÏä">
-      <el-form-item label="Ô­°ó¶¨ÓÊÏä" prop="oldEmail">
-        <el-input v-model="form.oldemail" type="email" placeholder="¾ÉµÄÓÊÏä">
+    <el-form ref="settingEmailFormRef" :model="resetEmailForm" :rules="rules" label-position="right" label-width="100px" title="ä¿®æ”¹ç»‘å®šé‚®ç®±">
+      <el-form-item label="åŽŸç»‘å®šé‚®ç®±" prop="oldEmail">
+        <el-input v-model="resetEmailForm.oldEmail" type="email" placeholder="æ—§çš„é‚®ç®±">
         </el-input>
       </el-form-item>
-      <el-form-item label="ÐÂ°ó¶¨ÓÊÏä" prop="newEmail">
-        <el-input v-model="form.newemail" type="email" placeholder="ÐÂµÄÓÊÏä">
+      <el-form-item label="æ–°ç»‘å®šé‚®ç®±" prop="newEmail">
+        <el-input v-model="resetEmailForm.newEmail" type="email" placeholder="æ–°çš„é‚®ç®±">
         </el-input>
+        <el-button type="primary" :disabled="sendingCode" @click="sendCaptcha">{{ codeText }}</el-button>
       </el-form-item>
-      <el-form-item label="ÑéÖ¤Âë" prop="userRole">
-        <el-input v-model="form.captcha" type="number" placeholder="¾ÉÓÊÏäÊÕµ½µÄÑéÖ¤Âë">
+      <el-form-item label="éªŒè¯ç " prop="captcha">
+        <el-input v-model.number="resetEmailForm.captcha" maxlength="6" autocomplete="off" placeholder="æ–°é‚®ç®±éªŒè¯ç ">
         </el-input>
       </el-form-item>
       <el-row class="btn-container">
-        <el-button size="mini" type="primary" @click="saveData()"> <i class="fa fa-plus"> </i> ÐÞ¸Ä </el-button>
+        <el-button size="mini" type="primary" @click="submitResetEmailForm()"> <i class="fa fa-plus"> </i> ä¿®æ”¹ </el-button>
       </el-row>
     </el-form>
 </template>
 <script lang="ts">
-import { computed, defineComponent, watchEffect, reactive, toRef, toRefs } from 'vue'
+import { computed, defineComponent, reactive, ref} from 'vue'
+import Service from "@/views/Personal/api";
+import { useStore } from '@/store'
+import {ElMessage} from "element-plus/es";
 
 export default defineComponent({
   name: 'PersonalEmailEdit',
-  setup(props, { emit }) {
+  emits: ['success'],
+  setup(props,{ emit }) {
+    const settingEmailFormRef = ref()
+    const store = useStore()
+    const sendingCode = ref(false)
+    const codeText = ref('èŽ·å–éªŒè¯ç ')
     const rules = {
-      oldemail: [{ required: true, type:'email', message: 'ÇëÊäÈëÓÊÏä', trigger: 'change' }],
-      newemail: [{ required: true, type:'email', message: 'ÇëÊäÈëÓÊÏä', trigger: 'change' }],
-      captcha: [{ required: true, type:'number', message: 'ÇëÊäÈëÑéÖ¤Âë', trigger: 'blur' }],
+      oldEmail: [{ required: true, type:'email', message: 'è¯·è¾“å…¥é‚®ç®±', trigger: 'change' }],
+      newEmail: [{ required: true, type:'email', message: 'è¯·è¾“å…¥é‚®ç®±', trigger: 'change' }],
     }
-    /**
-     * @description ±£´æµ±Ç°½ÇÉ«ÊÚÈ¨²Ëµ¥
-     */
-
+    const resetEmailForm = reactive({
+      oldEmail: '',
+      newEmail: '',
+      captcha: null,
+      accessToken: sessionStorage.getItem('accessToken')
+    })
+    const sendCaptcha = async() => {
+      const data = {
+        email: resetEmailForm.newEmail
+      }
+      const res = await Service.postCaptcha(data)
+      if (res.status === 0) {
+        ElMessage({
+          type: 'success',
+          message: res.message
+        })
+        getCodeSuccess()
+        return true
+      }
+      ElMessage({
+        type: 'warning',
+        message: res.message
+      })
+      return false
+    }
+    // çŸ­éªŒå·²å‘é€çŠ¶æ€
+    const getCodeSuccess = () => {
+      let countDown = 60
+      sendingCode.value = true
+      const interval = setInterval(() => {
+        if (countDown > 0) {
+          codeText.value = `å·²å‘é€(${countDown}s)`
+          countDown -= 1
+        } else {
+          clearInterval(interval)
+          sendingCode.value = false
+          codeText.value = 'èŽ·å–éªŒè¯ç '
+        }
+      }, 1000)
+    }
+    const submitResetEmailForm = async () => {
+        const data = {
+          ...resetEmailForm
+        }
+        const res = await Service.postSetEmail(data)
+        console.log(res)
+        if (res.status === 0) {
+          store.dispatch('permissionModule/getUserInfos', res.data)
+          ElMessage({
+            type: 'success',
+            message: res.data.message
+          })
+          emit('success')
+        }
+        else{
+          ElMessage({
+            type: 'warning',
+            message: res.data.message
+          })
+        }
+    }
     return {
       rules,
-      saveData
+      sendingCode,
+      codeText,
+      resetEmailForm,
+      sendCaptcha,
+      getCodeSuccess,
+      submitResetEmailForm
     }
   }
 })

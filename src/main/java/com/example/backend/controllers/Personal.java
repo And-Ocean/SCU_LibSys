@@ -1,5 +1,11 @@
 package com.example.backend.controllers;
 
+import com.example.backend.entity.ResponseBase;
+import com.example.backend.entity.User;
+import com.example.backend.entity.captcha.CaptchaRequest;
+import com.example.backend.entity.captcha.CaptchaResponse;
+import com.example.backend.entity.resetPassword.resetPasswordResponse;
+import com.example.backend.entity.userInfo.UserEmailDTO;
 import com.example.backend.entity.userInfo.personalSettingRequest;
 import com.example.backend.entity.userInfo.personalSettingResponse;
 import com.example.backend.services.AccessService;
@@ -12,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/setting")
@@ -33,7 +41,13 @@ public class Personal {
         int userId = accessService.getAuthenticatedId(accessToken);
         int isSuccess = userService.basicInfoSetting(nickname,phone,address,userId);
         if(isSuccess > 0){
-            personalSettingResponse.Data data = new personalSettingResponse.Data(nickname,phone,address);
+            personalSettingResponse.Data data = new personalSettingResponse.Data();
+            User user = userService.userInfoByUserid(userId);
+            data.setUserName(user.getUsername());
+            data.setNickName(user.getNickname());
+            data.setUserAddress(user.getAddress());
+            data.setUserEmail(user.getEmail());
+            data.setUserPhone(user.getPhone());
             personalSettingResponse response = new personalSettingResponse(
                     0,
                     "更新个人信息成功",
@@ -41,8 +55,7 @@ public class Personal {
                     data
             );
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-            else{
+        } else{
                 personalSettingResponse response = new personalSettingResponse(
                         0,
                         "更新个人信息失败",
@@ -63,76 +76,115 @@ public class Personal {
         }
     }
     @PostMapping("/resetEmail")
-    ResponseEntity<personalSettingResponse> resetEmail(@RequestBody personalSettingRequest request){
+    ResponseEntity<ResponseBase> resetEmail(@RequestBody personalSettingRequest request){
         try{
             String oldEmail = request.getOldEmail();
             String newEmail = request.getNewEmail();
             int captcha = request.getCaptcha();
             String accessToken = request.getAccessToken();
             int id = accessService.getAuthenticatedId(accessToken);
-            int isVerified = captchaService.verifyCaptcha(oldEmail, captcha);
+            int isVerified = captchaService.verifyCaptcha(newEmail, captcha);
             if (isVerified == 0) {
                 int isSuccess = userService.resetPersonalEmail(id, oldEmail, newEmail);
                 if (isSuccess > 0) {
-                    personalSettingResponse.Data data = new personalSettingResponse.Data(nickname, phone, address);
-                    personalSettingResponse response = new personalSettingResponse(
-                            0,
-                            "更新个人信息成功",
-                            true,
-                            data
-                    );
+                    ResponseBase response = new ResponseBase();
+                    response.setMessage("用户更新邮箱成功");
+                    UserEmailDTO emailResponse= new UserEmailDTO();
+                    emailResponse.setUserEmail(newEmail);
+                    response.pushData(emailResponse);
                     return ResponseEntity.status(HttpStatus.OK).body(response);
                 } else {
-                    personalSettingResponse response = new personalSettingResponse(
-                            0,
-                            "更新个人信息失败",
-                            false,
-                            null
-                    );
+                    ResponseBase response = new ResponseBase();
+                    response.setStatus(1);
+                    response.setMessage("用户更新邮箱失败");
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
                 }
             }
+            else if(isVerified == 1) {
+                ResponseBase response = new ResponseBase();
+                response.setStatus(1);
+                response.setMessage("验证码输入错误");
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
+            else{
+                ResponseBase response = new ResponseBase();
+                response.setStatus(1);
+                response.setMessage("验证码过期");
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
         }
         catch(Exception e){
-            personalSettingResponse response = new personalSettingResponse(
-                    2,
-                    "服务器内部错误",
-                    false,
-                    null
-            );
+            ResponseBase response = new ResponseBase();
+            response.setStatus(2);
+            response.setMessage("服务器内部错误");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
     @PostMapping("/resetPassword")
-    ResponseEntity<personalSettingResponse> resetPassword(@RequestBody personalSettingRequest request){
-        try{
-            String nickname = request.getNickname();
+    ResponseEntity<ResponseBase> resetPassword(@RequestBody personalSettingRequest request){
+        try {
             String accessToken = request.getAccessToken();
             String oldPassword = request.getOldPassword();
             String newPassword = request.getNewPassword();
             int id = accessService.getAuthenticatedId(accessToken);
-            int isSuccess = userService.resetPersonalPassword(id, oldPassword, newPassword);
-            if (isSuccess > 0) {
-                personalSettingResponse.Data data = new personalSettingResponse.Data(nickname, phone, address);
-                personalSettingResponse response = new personalSettingResponse(
+            if (id >= 0) {
+                int isSuccess = userService.resetPersonalPassword(id, oldPassword, newPassword);
+                if (isSuccess > 0) {
+                    ResponseBase response = new ResponseBase();
+                    response.setMessage("用户更新密码成功");
+                    return ResponseEntity.status(HttpStatus.OK).body(response);
+                } else {
+                    ResponseBase response = new ResponseBase();
+                    response.setStatus(1);
+                    response.setMessage("用户更新密码失败");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+                }
+            }
+            else{
+                ResponseBase response = new ResponseBase();
+                response.setStatus(1);
+                response.setMessage("用户登录状态错误");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+        }
+        catch(Exception e){
+            ResponseBase response = new ResponseBase();
+            response.setStatus(2);
+            response.setMessage("服务器内部错误");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    @PostMapping("/email/sendCaptcha")
+    public ResponseEntity<CaptchaResponse> SendCaptcha(@RequestBody CaptchaRequest request) {
+        try {
+            //获取邮箱
+            String email = request.getEmail();
+            //生成验证码存到会话或者缓存服务器
+            String subject ="SCU_图书馆系统";
+            String content ="（60s内有效）验证码：";
+            int captcha = new Random().nextInt(1000000);
+            //通过QQ邮箱发送给用户
+            boolean isSend = captchaService.sendEmail(email,subject,content,captcha);
+            if (isSend) {
+                CaptchaResponse response = new CaptchaResponse(
                         0,
-                        "用户更新密码成功",
+                        "验证码发送成功",
                         true,
-                        data
+                        null
                 );
                 return ResponseEntity.status(HttpStatus.OK).body(response);
             } else {
-                personalSettingResponse response = new personalSettingResponse(
-                        0,
-                        "用户更新密码失败",
+                // 构建失败响应
+                CaptchaResponse response = new CaptchaResponse(
+                        1,
+                        "验证码发送失败",
                         false,
                         null
                 );
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
-        }
-        catch(Exception e){
-            personalSettingResponse response = new personalSettingResponse(
+        } catch (Exception e) {
+            CaptchaResponse response = new CaptchaResponse(
                     2,
                     "服务器内部错误",
                     false,

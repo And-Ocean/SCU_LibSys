@@ -32,8 +32,22 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
         return 0; // 用户名或密码错误
     }
+    public User userInfoByUserid(int userId) {
+        try {
+            User user = userMapper.findByUserId(userId);
+            if (user != null) {
+                return user;
+            }
+        } catch (Exception e) {
+            // 记录异常信息
+            e.printStackTrace();
+            // 可以选择返回一个特定的错误码或抛出自定义异常
+            return null; // 表示查询失败
+        }
+        return null;
+    }
     //返回登录的用户相关信息
-    public User userInfo(String username) {
+    public User userInfoByUsername(String username) {
         try {
             User user = userMapper.findByUserName(username);
             if (user != null) {
@@ -98,18 +112,20 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     public int resetPersonalPassword(int id,String old_password, String new_password) {
         try {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            String oldPasswordBCrypt = encoder.encode(old_password);
             String newPasswordBCrypt = encoder.encode(new_password);
-            if (userMapper.findByUserId(id) == null) {
-                return 0;
+            User user = userMapper.findByUserId(id);
+            if(user!=null){
+                if (encoder.matches(old_password, user.getPassword())) {
+                    return userMapper.updatePersonalPassword(id, newPasswordBCrypt);
+                }
             }
-            return userMapper.updatePersonalPassword(id,oldPasswordBCrypt, newPasswordBCrypt);
         } catch (Exception e) {
             // 记录异常信息
             e.printStackTrace();
             // 可以选择返回一个特定的错误码或抛出自定义异常
             return -1; // 表示重置密码失败
         }
+        return 0; // 输入原来密码错误
     }
     public int resetPersonalEmail(int id,String oldEmail, String newEmail) {
         try {

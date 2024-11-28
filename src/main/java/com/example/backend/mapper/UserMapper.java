@@ -30,6 +30,6 @@ public interface UserMapper extends BaseMapper<User>{
     int updateUserInfo(String nickname, String phone,String address, int id);
     @Update("UPDATE user SET email = #{newEmail} WHERE id =#{id} and email=#{oldEmail}")
     int updatePersonalEmail(int id,String oldEmail,String newEmail);
-    @Update("UPDATE user SET password = #{newPassword} WHERE id=#{id} and password=#{oldPassword}")
-    int updatePersonalPassword(int id,String oldPassword,String newPassword);
+    @Update("UPDATE user SET password = #{newPassword} WHERE id=#{id}")
+    int updatePersonalPassword(int id,String newPassword);
 }

@@ -9,9 +9,9 @@ public class personalSettingRequest {
     private String phone;
     private String address;
     private String accessToken;
+    private String newEmail;
+    private String oldEmail;
+    private String oldPassword;
+    private String newPassword;
     private int captcha;
-    private String newemail;
-    private String oldemail;
-    private String oldpassword;
-    private String newpassword;
 }

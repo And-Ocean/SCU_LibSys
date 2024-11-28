@@ -92,7 +92,7 @@ public class Auth {
         try {
             //获取邮箱
             String username = request.getUsername();
-            User userInfo = userService.userInfo(username);
+            User userInfo = userService.userInfoByUsername(username);
             if (userInfo!=null) {
                 userInfoResponse.Data userInfoResponseData = new userInfoResponse.Data();
                 if(userInfo.getRole()==1) {
@@ -157,7 +157,7 @@ public class Auth {
                 } else {
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/dashboard", "/userInfo", "/menu", "/personal","/dragable","/todoList","/leaveApproval");
+                            "/dashboard", "/userInfoByUsername", "/menu", "/personal","/dragable","/todoList","/leaveApproval");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,

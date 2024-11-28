@@ -7,7 +7,7 @@ sendCaptcha: '/api/auth/email/sendCaptcha',
 forgetPassword: '/api/auth/email/forgot-password',
 resetPassword: `/api/auth/user/reset-password`,
 permissionRoutes: '/api/auth/permission/routes',
-userInfo: '/api/auth/user/userInfo'
+userInfo: '/api/auth/user/userInfoByUsername'
 }
 
 class Service {
@@ -123,7 +123,7 @@ class Service {
 
   static postAuthUserInfo(data: any) {
     return request({
-      url: 'http://localhost:8080/api/auth/user/userInfo',//loginApi.userInfo,
+      url: 'http://localhost:8080/api/auth/user/userInfo',//loginApi.userInfoByUsername,
       method: 'POST',
       json: true,
       data
