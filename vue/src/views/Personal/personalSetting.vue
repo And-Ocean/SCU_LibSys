@@ -21,13 +21,13 @@
                   <div class="form-info">
                     <el-form ref="settingFormRef" :model="settingForm" :rules="rules" label-width="100px" class="demo-ruleForm">
                       <el-form-item label="用户名称" prop="nickname">
-                        <el-input v-model="settingForm.username" placeholder="请输入用户名" maxlength="10"></el-input>
+                        <el-input v-model="settingForm.nickname" placeholder="请输入用户名" maxlength="10"></el-input>
                       </el-form-item>
                       <el-form-item label="联系电话" prop="mobile">
                         <el-input v-model="settingForm.phone" placeholder="请输入11位大陆手机号码"></el-input>
                       </el-form-item>
-                      <el-form-item label="个人简介" prop="desc">
-                        <el-input v-model="settingForm.intro" type="textarea" placeholder="个人简介" maxlength="120"></el-input>
+                      <el-form-item label="个人地址" prop="desc">
+                        <el-input v-model="settingForm.address" type="textarea" placeholder="个人详细住址" maxlength="120"></el-input>
                       </el-form-item>
                       <el-form-item>
                         <el-button type="primary" :loading="updateLoading" @click="submitForm()">更新基本信息</el-button>
@@ -59,37 +59,20 @@
                 <div class="secure-item">
                   <div class="secure-info">
                     <span class="secure-key">账户密码</span>
-                    <span class="secure-value">当前密码强度：强</span>
                   </div>
-                  <div class="opera-btn"><span>修改</span></div>
-                </div>
-                <div class="secure-item">
-                  <div class="secure-info">
-                    <span class="secure-key">密保手机</span>
-                    <span class="secure-value">已绑定手机：138****2234</span>
-                  </div>
-                  <div class="opera-btn"><span>修改</span></div>
+                  <div class="opera-btn" @click="showPasswordDialog = true"><span>修改</span></div>
                 </div>
                 <div class="secure-item">
                   <div class="secure-info">
                     <span class="secure-key">绑定邮箱</span>
-                    <span class="secure-value">已绑定邮箱：geek****@outlook.com</span>
+                    <span class="secure-value">已绑定邮箱：{{email}}</span>
                   </div>
-                  <div class="opera-btn"><span>修改</span></div>
+                  <div class="opera-btn" @click="showEmailDialog = true"><span>修改</span></div>
                 </div>
               </el-tab-pane>
               <el-tab-pane label="新消息通知">
                 <div class="set-title">
                   <span>新消息通知</span>
-                </div>
-                <div class="secure-item">
-                  <div class="secure-info">
-                    <span class="secure-key">账户密码</span>
-                    <span class="secure-value">用户信息将以系统内部渠道通知</span>
-                  </div>
-                  <el-tooltip :content="'是否开启用户信息: '" placement="top">
-                    <el-switch v-model="userSwitch" active-color="#13ce66" inactive-color="#ff4949" :active-value="true" :inactive-value="false"> </el-switch>
-                  </el-tooltip>
                 </div>
                 <div class="secure-item">
                   <div class="secure-info">
@@ -111,9 +94,16 @@
                 </div>
               </el-tab-pane>
             </el-tabs>
-          </el-card></div
-      ></el-col>
+          </el-card>
+        </div>
+      </el-col>
     </el-row>
+    <el-dialog title="修改绑定邮箱" :visible.sync="showEmailDialog" width="30%" :before-close="handleClose">
+      <PersonalEmailEdit @save="handleSaveEmail" />
+    </el-dialog>
+    <el-dialog title="修改密码" :visible.sync="showPasswordDialog" width="30%" :before-close="handleClose">
+      <PersonalPasswordEdit @save="handleSavePassword" />
+    </el-dialog>
   </div>
 </template>
 <script lang="ts">
@@ -123,27 +113,44 @@ import { useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import Service from './api/index'
 import LoginService from '../Login/api/index'
+import PersonalPasswordEdit from "@/views/Personal/personalPasswordEdit.vue";
 // eslint-disable-next-line no-unused-vars
 type VoidNoop = (arg0?: Error) => void
 export default defineComponent({
   name: 'PersonalSetting',
+  components: {PersonalPasswordEdit},
   setup() {
+    const email = localStorage.getItem('email')
     const router = useRouter()
     const tabPosition = ref('left')
     const settingFormRef = ref()
     const store = useStore()
+    const showEmailDialog = ref(false)
+    const showPasswordDialog = ref(false)
+
     const noticeSwitch = reactive({
       userSwitch: false,
       sysSwitch: true,
       taskSwitch: true
     })
     const settingForm = reactive({
-      //email:'',
-      username: '',
-      intro: '',
+      nickname: '',
+      address: '',
       phone: '',
       accessToken: sessionStorage.getItem('accessToken')
     })
+    const resetEmailForm = reactive({
+      oldemail: '',
+      newemail: '',
+      captcha: null,
+      accessToken: sessionStorage.getItem('accessToken')
+    })
+    const resetPasswordForm = reactive({
+      oldpassword: '',
+      newpassword: '',
+      accessToken: sessionStorage.getItem('accessToken')
+    })
+
     const imageUrl = ref()
     const updateLoading = ref(false)
 
@@ -163,15 +170,9 @@ export default defineComponent({
 
     //
     const rules = {
-      /*
-      email: [
-        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-        { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-      ],
-      */
-      username: { required: true, message: '请输入昵称', trigger: ['blur', 'change'] },
-      intro: { required: true, message: '请输入个人简介', trigger: ['blur', 'change'] },
-      phone: { required: true, validator: validateMobile, trigger: ['blur', 'change'] }
+      nickname: {  message: '请输入昵称', trigger: ['blur', 'change'] },
+      address: { message: '请输入个人地址', trigger: ['blur', 'change'] },
+      phone: { validator: validateMobile, trigger: ['blur', 'change'] }
     }
     onMounted(() => {})
     // methods
@@ -226,15 +227,46 @@ export default defineComponent({
       }
       return isLt2M
     }
+    const handleClose = (done: () => void) => {
+      done()
+    }
+
+    const handleSaveEmail = (data: any) => {
+      // 处理保存邮箱逻辑
+      ElMessage({
+        type: 'success',
+        message: '邮箱修改成功'
+      })
+      showEmailDialog.value = false
+    }
+    const handleSavePassword = (data: any) => {
+      // 处理保存邮箱逻辑
+      ElMessage({
+        type: 'success',
+        message: '密码修改成功'
+      })
+      showPasswordDialog.value = false
+    }
+
     return {
       handleBack,
+      handleClose,
       tabPosition,
       settingFormRef,
+      email,
       settingForm,
+      resetEmailForm,
+      resetPasswordForm,
       submitForm,
       resetForm,
       handleAvatarSuccess,
       beforeAvatarUpload,
+      showEmailDialog,
+      showPasswordDialog,
+      handleSaveEmail,
+      handleSavePassword,
+      submitEmailForm,
+      submitPasswordForm,
       rules,
       imageUrl,
       ...toRefs(noticeSwitch),

@@ -48,38 +48,9 @@ public class personalSettingResponse {
 
     // 内部类 Data
     public static class Data {
-        private String username;
-        private String userphone;
-        private String userintro;
-
-        public String getUserName() {
-            return username;
-        }
-
-        public void setUserName(String username) {
-            this.username = username;
-        }
-
-        public String getUserPhone() {
-            return userphone;
-        }
-
-        public void setUserPhone(String userphone) {
-            this.userphone = userphone;
-        }
-
-        public String getUserIntro() {
-            return userintro;
-        }
-
-        public void setUserIntro(String userintro) {
-            this.userintro = userintro;
-        }
-
-        public Data(String username, String phone,String intro) {
-            setUserName(username);
-            setUserPhone(phone);
-            setUserIntro(intro);
-        }
+        private String userName;
+        private String userPhone;
+        private String userEmail;
+        private String userAddress;
     }
 }

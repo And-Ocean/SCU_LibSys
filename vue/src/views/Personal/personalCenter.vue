@@ -2,28 +2,30 @@
   <div class="page-container">
     <div class="info">
       <el-divider content-position="left">个人中心</el-divider>
-      <span style="text-align: left"
-        >个人中心通常用来作为个人基本信息展示和个人事务通知中心
-        <el-link type="primary" href="https://fullcalendar.io/docs/initialize-globals-demo"
-          >fullCalendar Demo <el-tooltip class="item" effect="dark" :content="contentTip" placement="top-start"> <i class="el-icon-question"></i></el-tooltip> </el-link
-      ></span>
+      <span style="text-align: left">个人中心通常用来作为个人基本信息展示和个人事务通知中心</span>
     </div>
     <el-row :gutter="20">
-      <el-col :span="7" :offset="1">
+      <el-col :span="20" :offset="1">
         <el-card class="box-card">
           <div class="account-avatar">
             <img src="../../assets/avatar-default.jpg" />
-            <div class="account-name">极客恰恰</div>
-            <div class="account-sign">极客签名,持续学习</div>
+            <div class="account-name">{{nickname}}</div>
           </div>
           <div class="account-detail">
             <el-descriptions class="detail" :column="1" :size="size">
               <el-descriptions-item>
                 <template #label>
                   <i class="el-icon-user"></i>
-                  用户名:
+                  账号（学号）:
                 </template>
                 {{username}}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <i class="el-icon-chat-dot-round"></i>
+                  性别:
+                </template>
+                {{sex}}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -35,13 +37,6 @@
               <el-descriptions-item>
                 <template #label>
                   <i class="el-icon-chat-dot-round"></i>
-                  部门:
-                </template>
-                {{department}}
-              </el-descriptions-item>
-              <el-descriptions-item>
-                <template #label>
-                  <i class="el-icon-chat-dot-round"></i>
                   手机号:
                 </template>
                 {{phone}}
@@ -49,30 +44,12 @@
               <el-descriptions-item>
                 <template #label>
                   <i class="el-icon-chat-dot-round"></i>
-                  自我介绍:
+                  地址:
                 </template>
-                {{intro}}
+                {{address}}
               </el-descriptions-item>
             </el-descriptions>
           </div>
-          <!--
-          <div class="divider divider-dashed"></div>
-          <div class="tag-title"><span>标签</span></div>
-          <div class="tag-dynamic">
-            <el-tag v-for="tag in dynamicTags" :key="tag" closable :disable-transitions="false" @close="handleClose(tag)">
-              {{ tag }}
-            </el-tag>
-            <el-input v-if="inputVisible" ref="saveTagInput" v-model="inputValue" class="input-new-tag" size="small" @keyup.enter="handleInputConfirm" @blur="handleInputConfirm"> </el-input>
-            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
-            <div class="divider divider-dashed"></div>
-          </div>
-          -->
-        </el-card>
-      </el-col>
-
-      <el-col :span="15" :push="0">
-        <el-card class="box-card">
-          <fullcalendar></fullcalendar>
         </el-card>
       </el-col>
     </el-row>
@@ -107,10 +84,11 @@ export default defineComponent({
     const showDesc = ref(true)
     const store = useStore()
     const username = computed(() => store.state.permissionModule.username)
+    const nickname = computed(() => store.state.permissionModule.nickname)
     const role = computed(() => store.state.permissionModule.role)
-    const department = computed(() => store.state.permissionModule.department)
+    const sex = computed(() => store.state.permissionModule.sex)
     const phone = computed(() => store.state.permissionModule.phone)
-    const intro = computed(() => store.state.permissionModule.intro)
+    const address = computed(() => store.state.permissionModule.address)
     // mothods
     /**
      * @description 关闭tag标签
@@ -155,10 +133,11 @@ export default defineComponent({
       ...toRefs(state),
       size,
       username,
+      nickname,
       role,
-      department,
+      sex,
       phone,
-      intro,
+      address,
       showDesc,
       handleClose
     }

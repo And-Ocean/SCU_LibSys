@@ -6,6 +6,8 @@ import permissionStateTypes from './types'
 import RootStateTypes from '../../types'
 import Service from './api'
 
+const email = localStorage.getItem('email') || ''
+const username = localStorage.getItem('username') || ''
 const nickname = localStorage.getItem('nickname') || ''
 const role = localStorage.getItem('role') || ''
 const address = localStorage.getItem('department') || ''
@@ -15,6 +17,8 @@ const phone = localStorage.getItem('phone') || ''
 const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
   namespaced: true,
   state: {
+    email,//邮箱
+    username,//账号
     nickname,//用户名
     role, // 用户包含的角色,
     address,//用户地址
@@ -26,6 +30,14 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     authedRoutes: []
   },
   mutations: {
+    setEmail: (state: permissionStateTypes, { userEmail }) => {
+      state.email = userEmail
+      console.log(state.email)
+    },
+    setUsername: (state: permissionStateTypes, { userName }) => {
+      state.username = userName
+      console.log(state.username)
+    },
     setNickname: (state: permissionStateTypes, { nickName }) => {
       state.nickname = nickName
       console.log(state.nickname)
@@ -137,12 +149,20 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
 
     },
     getUserInfos({ commit }, payload: any) {
+      if('userEmail' in payload){
+        localStorage.setItem('email', payload.userEmail);
+        commit('setEmail', payload);
+      }
+      if('userName' in payload){
+        localStorage.setItem('username', payload.userName);
+        commit('setUsername', payload);
+      }
       if ('nickName' in payload) {
-        localStorage.setItem('nickname', payload.userName);
+        localStorage.setItem('nickname', payload.nickName);
         commit('setNickname', payload);
       }
       if ('userSex' in payload) {
-        localStorage.setItem('sex', payload.userDepartment);
+        localStorage.setItem('sex', payload.userSex);
         commit('setSex', payload);
       }
       if ('userPhone' in payload) {
@@ -150,7 +170,7 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
         commit('setPhone', payload);
       }
       if ('userAddress' in payload) {
-        localStorage.setItem('address', payload.userIntro);
+        localStorage.setItem('address', payload.userAddress);
         commit('setAddress', payload);
       }
     }
@@ -162,6 +182,12 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     },
     authedRoutes(state: permissionStateTypes) {
       return state.authedRoutes
+    },
+    getEmail(state: permissionStateTypes) {
+      return state.email
+    },
+    getUsername(state: permissionStateTypes) {
+      return state.username
     },
     getNickname(state: permissionStateTypes) {
       return state.nickname

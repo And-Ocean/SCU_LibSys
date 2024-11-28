@@ -242,7 +242,6 @@
         </div>
       </el-col>
     </el-row>
-
     <div>
       <el-row>
         <el-col :span="18">

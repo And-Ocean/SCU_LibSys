@@ -48,14 +48,26 @@ public class userInfoResponse {
 
     // 内部类 Data
     public static class Data {
+        private String userEmail;
+        private String userName;
         private String nickName;
         private String roleName;
-
-
-
         private String userSex;
         private String userPhone;
         private String userAddress;
+
+        public String getUserEmail() {
+            return userEmail;
+        }
+        public void setUserEmail(String userEmail) {
+            this.userEmail = userEmail;
+        }
+        public String getUserName() {
+            return userName;
+        }
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
         public String getUserPhone() {
             return userPhone;
         }

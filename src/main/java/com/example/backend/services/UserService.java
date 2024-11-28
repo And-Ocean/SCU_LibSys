@@ -95,6 +95,35 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             return -1; // 表示重置密码失败
         }
     }
+    public int resetPersonalPassword(int id,String old_password, String new_password) {
+        try {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String oldPasswordBCrypt = encoder.encode(old_password);
+            String newPasswordBCrypt = encoder.encode(new_password);
+            if (userMapper.findByUserId(id) == null) {
+                return 0;
+            }
+            return userMapper.updatePersonalPassword(id,oldPasswordBCrypt, newPasswordBCrypt);
+        } catch (Exception e) {
+            // 记录异常信息
+            e.printStackTrace();
+            // 可以选择返回一个特定的错误码或抛出自定义异常
+            return -1; // 表示重置密码失败
+        }
+    }
+    public int resetPersonalEmail(int id,String oldEmail, String newEmail) {
+        try {
+            if (userMapper.findByUserId(id) == null) {
+                return 0;
+            }
+            return userMapper.updatePersonalEmail(id,oldEmail, newEmail);
+        } catch (Exception e) {
+            // 记录异常信息
+            e.printStackTrace();
+            // 可以选择返回一个特定的错误码或抛出自定义异常
+            return -1; // 表示重置密码失败
+        }
+    }
     public List<User> adminUserInfo(int user_id){
         try {
             User user = userMapper.findByUserId(user_id);

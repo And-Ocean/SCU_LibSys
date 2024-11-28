@@ -101,6 +101,8 @@ public class Auth {
                 else{
                     userInfoResponseData.setRoleName("student");
                 }
+                userInfoResponseData.setUserEmail(userInfo.getEmail());
+                userInfoResponseData.setUserName(userInfo.getUsername());
                 userInfoResponseData.setNickName(userInfo.getNickname());
                 userInfoResponseData.setUserSex(userInfo.getSex());
                 userInfoResponseData.setUserPhone(userInfo.getPhone());

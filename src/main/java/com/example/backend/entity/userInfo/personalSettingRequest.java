@@ -5,8 +5,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class personalSettingRequest {
-    private String username;
+    private String nickname;
     private String phone;
-    private String intro;
+    private String address;
     private String accessToken;
+    private int captcha;
+    private String newemail;
+    private String oldemail;
+    private String oldpassword;
+    private String newpassword;
 }
