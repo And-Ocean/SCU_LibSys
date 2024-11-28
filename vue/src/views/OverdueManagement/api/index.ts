@@ -1,70 +1,43 @@
-import request from '@/utils/request';
+import request from '@/utils/request'
 
-const overdueManagementApi = {
-  getOverdueList: '/api/overdueManagement/getOverdueList',
-  localHost: 'http://localhost:8080',
-  modifyOverdueRecord: '/api/overdueManagement/modifyOverdueRecord',
-  addOverdueRecord: '/api/overdueManagement/addOverdueRecord',
-  deleteOverdueRecord: '/api/overdueManagement/deleteOverdueRecord'
+const borrowBookApi = {
+  getBooksByUserId: '/api/bookBorrow/get_books_by_user_id',
+  returnBooksByLendId: '/api/bookBorrow/return_by_lend_id',
+  localHost:'http://localhost:8080',
 }
+
 
 class Service {
-  static postQueryOverdueList() {
-    return request({
-      url: overdueManagementApi.localHost + overdueManagementApi.getOverdueList,
-      method: 'POST',
-      json: true
-    }).then((res) => {
-      if (res.status === 0) {
-        console.log('postQueryOverdueList success');
-        return res;
-      }
-      return null;
-    });
-  }
 
-  static postAddOverdueRecord(record: any) {
+  static postGetBorrowedBookByUserId(data: any) {
     return request({
-      url: overdueManagementApi.localHost + overdueManagementApi.addOverdueRecord,
+      url: borrowBookApi.localHost + borrowBookApi.getBooksByUserId,
       method: 'POST',
       json: true,
-      data: record
+      data
     }).then((res) => {
+      // console.log(res)
       if (res.status === 0) {
-        return res;
+        return Promise.resolve(res)
       }
-      return null;
-    });
+      return Promise.reject(res)
+    })
   }
 
-  static postUpdateOverdueRecord(record: any) {
+  static returnBook(lend_id:any) {
     return request({
-      url: overdueManagementApi.localHost + overdueManagementApi.modifyOverdueRecord,
+      url: borrowBookApi.localHost + borrowBookApi.returnBooksByLendId,
       method: 'POST',
       json: true,
-      data: record
+      data: {lend_id: lend_id},
     }).then((res) => {
+      // console.log(res)
       if (res.status === 0) {
-        return res;
+        return Promise.resolve(res)
       }
-      return null;
-    });
+      return Promise.reject(res)
+    })
   }
 
-  static postDeleteOverdueRecord(record: any) {
-    return request({
-      url: overdueManagementApi.localHost + overdueManagementApi.deleteOverdueRecord,
-      method: 'POST',
-      json: true,
-      data: record
-    }).then((res) => {
-      if (res.status === 0) {
-        return res;
-      }
-      return null;
-    });
-  }
 }
-
-// 导出 Service 类
-export default Service;
+export default Service
