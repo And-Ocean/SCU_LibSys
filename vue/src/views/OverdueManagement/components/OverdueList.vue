@@ -9,7 +9,7 @@
       <el-table-column prop="lend_time" label="借书时间" sortable width="180" column-key="lend_time"></el-table-column>
       <el-table-column prop="book_id" label="书籍ID" width="180"></el-table-column>
       <el-table-column prop="return_time" label="应还时间" width="180"></el-table-column>
-      <el-table-column prop="user_id" label="用户ID" width="180"></el-table-column>
+      <el-table-column prop="fine_amount" label="罚款金额" width="180"></el-table-column>
       <el-table-column prop="returned" label="是否归还" width="100"></el-table-column>
       <el-table-column align="right">
         <template #header>
@@ -35,8 +35,8 @@
         <el-form-item label="应还时间" :label-width="formLabelWidth">
           <el-input v-model="form.return_time" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="用户ID" :label-width="formLabelWidth">
-          <el-input v-model="form.user_id" autocomplete="on"></el-input>
+        <el-form-item label="罚款金额" :label-width="formLabelWidth">
+          <el-input v-model.number="form.fine_amount" autocomplete="on"></el-input>
         </el-form-item>
         <el-form-item label="是否归还" :label-width="formLabelWidth">
           <el-input v-model="form.returned" autocomplete="off"></el-input>
@@ -56,8 +56,8 @@
         <el-form-item label="应还时间" :label-width="formLabelWidth">
           {{ form.return_time }}
         </el-form-item>
-        <el-form-item label="用户ID" :label-width="formLabelWidth">
-          {{ form.user_id }}
+        <el-form-item label="罚款金额" :label-width="formLabelWidth">
+          {{ form.fine_amount }}
         </el-form-item>
         <el-form-item label="是否归还" :label-width="formLabelWidth">
           {{ form.returned }}
@@ -91,10 +91,10 @@ import Service from '../api/index'
 
 interface Record {
   book_id: string;
-  user_id: string;
   lend_time: string;
   return_time: string;
   returned: string;
+  fine_amount?: number; // 罚款金额可选
 }
 
 export default defineComponent({
@@ -124,10 +124,10 @@ export default defineComponent({
       detailFormVisible: false,
       form: {
         book_id: '',
-        user_id: '',
         lend_time: '',
         return_time: '',
-        returned: ''
+        returned: '',
+        fine_amount: 0 // 初始化罚款金额
       }
     });
     const formInline = reactive({
@@ -146,6 +146,16 @@ export default defineComponent({
       filterTableRef.value.clearFilter('lend_time')
     }
 
+    const calculateFine = (returnDate: string): number => {
+      const currentDate = new Date();
+      const dueDate = new Date(returnDate);
+      const oneDay = 24 * 60 * 60 * 1000; // 一天的毫秒数
+      const diffDays = Math.round((currentDate.getTime() - dueDate.getTime()) / oneDay);
+
+      const finePerDay = 1; // 每天的罚款金额，例如1元
+      return diffDays > 0 ? diffDays * finePerDay : 0;
+    };
+
     const getOverdueList = () => {
       try {
         Service.postQueryOverdueList().then((res) => {
@@ -153,12 +163,12 @@ export default defineComponent({
             state.tableData = []
             const { data } = res
             for (let i = 0; i < data.length; i++) {
-              const record = {
+              const record: Record = {
                 book_id: data[i].book_id,
-                user_id: data[i].user_id,
                 lend_time: data[i].lend_time,
                 return_time: data[i].return_time,
-                returned: data[i].returned
+                returned: data[i].returned,
+                fine_amount: calculateFine(data[i].return_time) // 动态计算罚款金额
               }
               state.tableData.push(record)
             }
@@ -177,7 +187,6 @@ export default defineComponent({
         }
       }
     }
-
 
     const clearFilter = () => {
       filterTableRef.value.clearFilter()
@@ -198,10 +207,10 @@ export default defineComponent({
       const record = { ...state.form } // 复制表单数据
       state.form = { // 初始化表单对象，确保包含所有期望的属性
         book_id: '',
-        user_id: '',
         lend_time: '',
         return_time: '',
-        returned: ''
+        returned: '',
+        fine_amount: 0 // 初始化罚款金额
       }
       try {
         Service.postUpdateOverdueRecord(record).then((res) => {
@@ -220,8 +229,6 @@ export default defineComponent({
         }
       }
     }
-
-
 
     const handleDelete = (index: any, row: any) => {
       const record = { book_id: row.book_id }
@@ -242,7 +249,6 @@ export default defineComponent({
         }
       }
     }
-
 
     const handleSizeChange = (val: any) => {
       state.pageSize = val
@@ -287,3 +293,4 @@ export default defineComponent({
   }
 }
 </style>
+
