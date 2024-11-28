@@ -8,8 +8,8 @@
       <el-input v-model="resetPasswordForm.newPassword" type="password" placeholder="新的密码">
       </el-input>
     </el-form-item>
-    <el-form-item label="新密码验证" prop="newPassword">
-      <el-input v-model="resetPasswordForm.newPassword" type="password" placeholder="再次输入新的密码">
+    <el-form-item label="新密码验证" prop="confirmNewPassword">
+      <el-input v-model="resetPasswordForm.confirmNewPassword" type="password" placeholder="再次输入新的密码">
       </el-input>
     </el-form-item>
     <el-row class="btn-container">
@@ -29,14 +29,19 @@ export default defineComponent({
   setup(props,{ emit }) {
     const router = useRouter()
     const settingPasswordFormRef = ref()
-    const rules = {
-      oldPassword: [{ required: true, type:'password', message: '请输入密码', trigger: 'change' }],
-      newPassword: [{ required: true, type:'password', message: '请输入密码', trigger: 'change' }],
-    }
+
     const resetPasswordForm = reactive({
       oldPassword: '',
       newPassword: '',
+      confirmNewPassword: ''
     })
+    const validateConfirmPassword = (rule: any, value: string, callback: any) => {
+      if (value !== resetPasswordForm.newPassword) {
+        callback(new Error('两次输入的密码不一致'))
+      } else {
+        callback()
+      }
+    }
     const submitResetPasswordForm = async() => {
       const { oldPassword, newPassword } = resetPasswordForm
       const data = {
@@ -60,8 +65,16 @@ export default defineComponent({
           })
         }
     }
+    const rules = {
+      oldPassword: [{ required: true, type:'password', message: '请输入密码', trigger: 'change' }],
+      newPassword: [{ required: true, type:'password', message: '请输入密码', trigger: 'change' },
+        { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'change' }],
+      confirmNewPassword: [{ required: true, message: '请再次输入新密码', trigger: 'change' },
+        { validator: validateConfirmPassword, trigger: 'change' }]
+    }
     return {
       rules,
+      validateConfirmPassword,
       resetPasswordForm,
       submitResetPasswordForm
     }
