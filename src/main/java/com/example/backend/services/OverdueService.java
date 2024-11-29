@@ -1,34 +1,25 @@
 package com.example.backend.services;
 
-import com.example.backend.entity.overdueBookDTO.OverdueRecordDTO;
-import com.example.backend.mapper.OverdueMapper;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.backend.mapper.OverdueMapper;
+import com.example.backend.entity.overdueBookDTO.OverdueRecordDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-public interface OverdueService extends IService<OverdueRecordDTO> {
-    List<OverdueRecordDTO> getOverdueRecords(int userId);
-    void returnBook(int lendId);
+@Service
+public class OverdueService extends ServiceImpl<OverdueMapper, OverdueRecordDTO> {
 
-    @Service
-    class OverdueServiceImpl extends ServiceImpl<OverdueMapper, OverdueRecordDTO> implements OverdueService {
+    @Autowired
+    public OverdueMapper overdueMapper;
 
-        private final OverdueMapper overdueMapper;
+    public List<OverdueRecordDTO> getOverdueBookList(int user_id) {
+        return overdueMapper.selectOverdueRecordDTO(user_id);
+    }
 
-        public OverdueServiceImpl(OverdueMapper overdueMapper) {
-            this.overdueMapper = overdueMapper;
-        }
-
-        @Override
-        public List<OverdueRecordDTO> getOverdueRecords(int userId) {
-            return overdueMapper.selectOverdueRecords(userId);
-        }
-
-        @Override
-        public void returnBook(int lendId) {
-            overdueMapper.returnSetYesByLendId(lendId);
-            overdueMapper.statusSetYesByLendId(lendId);
-        }
+    public int returnByLendId(int lend_id) {
+        overdueMapper.returnSetYesByLendId(lend_id);
+        overdueMapper.statusSetYesByLendId(lend_id);
+        return 0;
     }
 }

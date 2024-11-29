@@ -11,14 +11,16 @@ import java.util.List;
 @Mapper
 public interface OverdueMapper extends BaseMapper<OverdueRecordDTO> {
 
-    @Select("SELECT book_id, lend_time, return_time, returned, fine_amount, lend_id " +
-            "FROM overdue_records WHERE user_id = #{userId} AND returned = 0")
-    List<OverdueRecordDTO> selectOverdueRecords(int userId);
+    @Select("select id as book_id, lend_time, return_time, returned, isbn, status, place, title, price, author, publisher, lend_id " +
+            "from " +
+            "(select l.id as lend_id, l.lend_time, l.return_time, l.returned, b.* from lends as l, bookentity as b " +
+            "where l.book_id = b.id and l.user_id = #{user_id} and l.returned = 0) as t natural join bookisbn")
+    List<OverdueRecordDTO> selectOverdueRecordDTO(int user_id);
 
-    @Update("UPDATE overdue_records SET returned = 1 WHERE lend_id = #{lendId}")
-    void returnSetYesByLendId(int lendId);
+    @Update("update lends set returned = 1 where id = #{lend_id}")
+    void returnSetYesByLendId(int lend_id);
 
-    @Update("UPDATE books SET status = 1 WHERE id = ( " +
-            "SELECT book_id FROM overdue_records WHERE lend_id = #{lendId})")
-    void statusSetYesByLendId(int lendId);
+    @Update("update bookentity set status = 1 where id = ( " +
+            "select book_id from lends where id = #{lend_id})")
+    void statusSetYesByLendId(int lend_id);
 }
