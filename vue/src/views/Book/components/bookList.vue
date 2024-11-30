@@ -6,54 +6,39 @@
     <el-button v-if="isAdmin" type="primary" @click="onAddBookIsbn">添加图书</el-button>
 
     <el-table ref="filterTableRef" class="table-list" row-key="book_id"
-              :data="tableData.filter((data) => !search || data.title.toLowerCase().includes(search.toLowerCase()))"
-              style="width: 100%">
-      <el-table-column width="10"></el-table-column>
-      <el-table-column prop="title" label="书名" truncated></el-table-column>
-      <el-table-column prop="isbn" label="ISBN" truncated></el-table-column>
-
-      <el-table-column prop="author" label="作者" width="100"></el-table-column>
-      <el-table-column prop="publisher" label="出版社"></el-table-column>
-      <el-table-column align="right">
-        <template #header>
-          <el-input v-model="search" size="mini" placeholder="输入书名关键字搜索"/>
-        </template>
-        <template #default="scope">
-          <el-button size="mini" @click="detailPop(scope.row)">书籍详情</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column width="120">
-        <template #default="scope">
-          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
-                         title="确定借阅这本书吗？" @confirm="onBorrowBook(scope.$index, scope.row)">
-            <template #reference>
-              <el-button size="mini" type="primary">借阅</el-button>
-            </template>
-          </el-popconfirm>
-        </template>
-      </el-table-column>
-      <el-table-column width="120">
-        <template #default="scope">
-          <el-popconfirm
-              confirm-button-text="确定"
-              cancel-button-text="取消"
-              icon="el-icon-info"
-              icon-color="red"
-              title="确定删除这本书吗？"
-              @confirm="handleDelete(scope.$index, scope.row)"
-          >
-            <template #reference>
-              <!-- 使用 v-if 控制按钮是否显示 -->
-              <el-button v-if="isAdmin" size="mini" type="danger">删除</el-button>
-            </template>
-          </el-popconfirm>
-        </template>
-      </el-table-column>
-      <el-table-column width="120">
-        <template #default="scope">
-              <el-button v-if="isAdmin" size="mini" type="danger" @click="modifyPop(scope.row)">修改</el-button>
-        </template>
-      </el-table-column>
+              :data="paginatedData" style="width: 100%">
+    <el-table-column width="10"></el-table-column>
+    <el-table-column prop="title" label="书名" truncated></el-table-column>
+    <el-table-column prop="isbn" label="ISBN" truncated></el-table-column>
+    <el-table-column prop="author" label="作者" width="100"></el-table-column>
+    <el-table-column prop="publisher" label="出版社"></el-table-column>
+    <el-table-column align="right">
+      <template #header>
+        <el-input v-model="search" size="mini" placeholder="输入书名关键字搜索"/>
+      </template>
+      <template #default="scope">
+        <el-button size="mini" @click="detailPop(scope.row)">书籍详情</el-button>
+        <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+                       title="确定借阅这本书吗？" @confirm="onBorrowBook(scope.$index, scope.row)">
+          <template #reference>
+            <el-button size="mini" type="primary">借阅</el-button>
+          </template>
+        </el-popconfirm>
+        <el-button v-if="isAdmin" size="mini" type="warning" @click="modifyPop(scope.row)">修改</el-button>
+        <el-popconfirm
+            confirm-button-text="确定"
+            cancel-button-text="取消"
+            icon="el-icon-info"
+            icon-color="red"
+            title="确定删除这本书吗？"
+            @confirm="handleDelete(scope.$index, scope.row)"
+        >
+          <template #reference>
+            <el-button v-if="isAdmin" size="mini" type="danger">删除</el-button>
+          </template>
+        </el-popconfirm>
+      </template>
+    </el-table-column>
     </el-table>
 
     <el-dialog v-model="modifyFormVisible" title="修改书籍信息">
@@ -139,7 +124,6 @@ import { useRouter } from 'vue-router'
 import permission from '@/directive/permission'
 import Service from '../api/index'
 import { ElMessage } from "element-plus"
-import axios from 'axios'
 
 export default defineComponent({
   name: 'bookList',
@@ -150,14 +134,17 @@ export default defineComponent({
     const router = useRouter()
     const filterTableRef = ref()
     const state = reactive({
+      allBooks: [],
+      paginatedData: [],  // 分页后的图书数据
       tableData: [],
       currentPage: 1,
-      pageSize: 5,
+      pageSize: 10,
       search: '',
       modifyFormVisible: false,
       detailFormVisible: false,
       form: {},
       isAdmin: false,  // 默认不是管理员
+      total: 0, // 总记录数
     })
     const formInline = reactive({
       user: '',
@@ -184,24 +171,12 @@ export default defineComponent({
       console.log("getPersonalBookList exc")
       try {
         Service.postGetBookIsbn().then((res) => {
-          if (res) {
-            state.tableData = []
-            console.log('getBookList get')
-            console.log(res)
-            const data = res.data
-            for (let i = 0; i < data.length; i++) {
-              const record = {
-                isbn: data[i].isbn,
-                title: data[i].title,
-                price: data[i].price,
-                author: data[i].author,
-                publisher: data[i].publisher,
-                borrownum: data[i].borrownum,
-              }
-              state.tableData.push(record)
-            }
+          if (res && res.data) {
+            state.allBooks = res.data;  // 获取所有书籍
+            state.total = state.allBooks.length;  // 更新总记录数
+            updatePaginatedData();  // 更新分页数据
           } else {
-            console.log('getPersonalBookList RES MISS')
+            console.log('没有找到数据')
           }
         })
       } catch (err) {
@@ -210,6 +185,25 @@ export default defineComponent({
           message: err.message
         })
       }
+    }
+
+    // 更新分页数据
+    const updatePaginatedData = () => {
+      const start = (state.currentPage - 1) * state.pageSize;
+      const end = state.currentPage * state.pageSize;
+      state.paginatedData = state.allBooks.slice(start, end);  // 根据当前页和页大小提取分页数据
+    }
+
+    // 当前页变更时更新分页数据
+    const handleCurrentChange = (val: number) => {
+      state.currentPage = val;
+      updatePaginatedData();  // 更新分页数据
+    }
+
+    // 每页记录数变更时更新分页数据
+    const handleSizeChange = (val: number) => {
+      state.pageSize = val;
+      updatePaginatedData();  // 更新分页数据
     }
 
     const resetDateFilter = () => {
@@ -279,20 +273,6 @@ export default defineComponent({
       state.tableData.splice(index, 1)
     }
 
-    const handleSizeChange = (val: any) => {
-      // eslint-disable-next-line no-console
-      console.log(`每页 ${val} 条`)
-      state.pageSize = val
-      // request api to change tableData
-    }
-
-    const handleCurrentChange = (val: any) => {
-      // eslint-disable-next-line no-console
-      console.log(`当前页: ${val}`)
-      state.currentPage = val
-      // request api to change tableData
-    }
-
     const onSubmit = () => {
       // eslint-disable-next-line no-console
       console.log('submit!')
@@ -327,7 +307,6 @@ export default defineComponent({
 
     return {
       formInline,
-      total,
       ...toRefs(state),
       handleCurrentChange,
       handleSizeChange,
