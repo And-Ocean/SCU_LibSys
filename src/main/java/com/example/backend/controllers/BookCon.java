@@ -19,7 +19,7 @@ public class BookCon {
     @Autowired
     private BookIsbnService book_service;
 
-    @PostMapping("/getBookISBN")
+    @PostMapping("/getBookIsbn")
     public ResponseEntity<ResponseBase> getBookISBN() {
         ResponseBase response = new ResponseBase();
         List<BookISBN> records = book_service.getAllBookISBN();

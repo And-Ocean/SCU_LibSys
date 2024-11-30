@@ -30,7 +30,7 @@
 
 
               <el-form-item size="large">
-                <el-button type="primary" @click="submitForm">立即创建</el-button>
+                <el-button type="primary" @click="submitForm">确认添加</el-button>
                 <el-button>取消</el-button>
               </el-form-item>
             </el-form>
@@ -91,7 +91,7 @@ export default defineComponent({
             });
             ElMessage({
               type: 'success',
-              message: '创建成功'
+              message: '添加成功'
             })
           } catch (err) {
             ElMessage({
@@ -205,6 +205,7 @@ export default defineComponent({
 
   .box-card {
     width:100%;
+    min-height: 400px; /* 添加最小高度 */
   }
 
    .el-row {

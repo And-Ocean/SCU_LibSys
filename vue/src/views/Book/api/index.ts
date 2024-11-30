@@ -3,14 +3,14 @@ import request from '@/utils/request'
 const bookApi = {
   localHost:'http://localhost:8080',
   getBookIsbn: '/api/book/getBookIsbn',
-  modifyBookIsbn: '/api/book/modifyBookIsbn',
-  addBookIsbn: '/api/book/addBookIsbn',
-  deleteBookIsbn: '/api/book/deleteBookIsbn',
+  modifyBookIsbn: '/api/book/modifyBookISBN',
+  addBookIsbn: '/api/book/addBookISBN',
+  deleteBookIsbn: '/api/book/deleteBookISBN',
   getBookEntity: '/api/book/getBookEntity',
   modifyBookEntity: '/api/book/modifyBookEntity',
   addBookEntity: '/api/book/addBookEntity',
   deleteBookEntity: '/api/book/deleteBookEntity',
-  borrowBook: 'api/book/borrowBook'
+  borrowBook: 'api/book/borrowBook',
 }
 
 
@@ -157,5 +157,6 @@ class Service {
       return null
     })
   }
+
 }
 export default Service
