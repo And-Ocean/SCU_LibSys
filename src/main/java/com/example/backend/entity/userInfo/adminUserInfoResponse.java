@@ -17,16 +17,20 @@ public class adminUserInfoResponse {
     }
     // 内部类 Data
     public static class Data {
+        private String userName;
         private String nickName;
-
-
-
         private String userAddress;
         private String userSex;
         private int userRole;
         private String userPhone;
 
+        public String getUserName() {
+            return userName;
+        }
 
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
         public String getNickName() {
             return nickName;
         }

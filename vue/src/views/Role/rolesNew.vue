@@ -1,18 +1,22 @@
 <template>
   <div v-loading="loading" class="new">
     <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="100px" title="新增员工">
-      <el-form-item label="员工ID" prop="userId">
-        <el-input v-model="form.userId" placeholder="请输入员工ID"></el-input>
+      <el-form-item label="学号" prop="userName">
+        <el-input v-model="form.userName" placeholder="请输入学号"></el-input>
       </el-form-item>
-      <el-form-item label="员工部门" prop="userDepartment">
-        <el-select v-model="form.userDepartment" placeholder="请选择部门">
-          <el-option v-for="department in departments" :key="department.value" :label="department.label" :value="department.value"></el-option>
+      <el-form-item label="用户名" prop="nickName">
+        <el-input v-model="form.nickName" placeholder="请输入用户名"></el-input>
+      </el-form-item>
+      <el-form-item label="性别" prop="userSex">
+        <el-select v-model="form.userSex" placeholder="请选择性别">
+          <el-option v-for="sex in sexs" :key="sex.value" :label="sex.label" :value="sex.value"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="员工职位" prop="userRole">
-        <el-select v-model="form.userRole" placeholder="请选择职能">
-          <el-option v-for="role in roles" :key="role.value" :label="role.label" :value="role.value"></el-option>
-        </el-select>
+      <el-form-item label="手机号" prop="userPhone">
+        <el-input v-model="form.userPhone" placeholder="请输入用户手机号码"></el-input>
+      </el-form-item>
+      <el-form-item label="详细地址" prop="userAddress">
+        <el-input v-model="form.userAddress" placeholder="请输入用户地址"></el-input>
       </el-form-item>
       <el-row class="btn-container">
         <el-button size="mini" type="primary" @click="submitForm()"> <i class="fa fa-plus"> </i> 新增 </el-button>
@@ -22,41 +26,35 @@
 </template>
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref } from 'vue'
+import Service from "@/views/Role/api";
 
 export default defineComponent({
   name: 'RoleNew',
   emits: ['success'],
   setup(props, { emit }) {
     const rules = {
-      userId: [
+      userName: [
         { required: true, message: '请输入员工ID', trigger: 'blur' },
-        { type:'number', message: '请输入有效数字', trigger: 'blur' }
       ],
-      userDepartment: [
-        { required: true, message: '请选择部门', trigger: 'change' },
-      ],
-      userRole: [
-        { required: true, message: '请输入员工职能', trigger: 'change' },
+      userPhone:[
+        {min:11,max:11,message:'请输入11位手机号'}
       ]
     }
-    const departments = [
-      { value: 'IT', label: '技术部' },
-      { value: 'Market', label: '市场部' },
-      { value: 'HR', label: '人力资源部' }
+    const sexs = [
+      { value: '男', label: '男' },
+      { value: '女', label: '女' }
     ]
 
-    const roles = [
-    { value: 'admin', label: '管理员' },
-    { value: 'manager', label: '部门经理' },
-    { value: 'worker', label: '员工' }
-    ]
     const url = `/role/add`
     const formRef = ref()
     // 只将响应式数据进行响应式处理
     const state = reactive({
       form: {
-        roleName: '',
-        remark: ''
+        userName: '',
+        nickName: '',
+        userSex: '',
+        userPhone: '',
+        userAddress: '',
       },
       loading: false
     })
@@ -66,19 +64,28 @@ export default defineComponent({
     const submitForm = () => {
       formRef.value.validate((valid: any): boolean => {
         if (valid) {
-          emit('success', { ...state.form })
+          const data ={
+            userName: state.form.userName,
+            nickName: state.form.nickName,
+            userSex: state.form.userSex,
+            userPhone: state.form.userPhone,
+            userAddress: state.form.userAddress,
+            accessToken: sessionStorage.getItem('accessToken')
+          }
+          Service.postAdminAddUser(data).then(res => {
+            if(res.status === 0) {
+              emit('success')
+            }
+          })
           return true
         }
-        // eslint-disable-next-line no-console
-        console.log('error submit!!')
         return false
       })
     }
     return {
       submitForm,
       rules,
-      departments,
-      roles,
+      sexs,
       formRef,
       url,
       ...toRefs(state)

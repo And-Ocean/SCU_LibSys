@@ -249,7 +249,7 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
     redirect: '/Role/roleManage',
     meta: {
       title: {
-        '/zh-CN': '人事管理',
+        '/zh-CN': '用户管理',
         '/en-US': 'Role Manage'
       },
       icon: 'ic ic-group-fill'
@@ -261,7 +261,7 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
         component: () => import(/* @/views/Menu/menuManage.vueichText" */ '@/views/Role/rolesManage.vue'),
         meta: {
           title: {
-            '/zh-CN': '人事管理',
+            '/zh-CN': '用户管理',
             '/en-US': 'Role Manage'
           },
           icon: 'ic ic-group-fill'

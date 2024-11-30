@@ -6,4 +6,10 @@ import lombok.Setter;
 @Setter
 public class adminUserInfoRequest {
     private String accessToken;
+    private String keyword;
+    private String userName;
+    private String userPhone;
+    private String userSex;
+    private String userAddress;
+    private String nickName;
 }

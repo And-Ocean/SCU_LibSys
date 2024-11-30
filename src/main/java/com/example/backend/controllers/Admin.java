@@ -27,11 +27,13 @@ public class Admin {
     public ResponseEntity<adminUserInfoResponse> userList(@RequestBody adminUserInfoRequest request) {
         try {
             String accessToken = request.getAccessToken();
+            String keyword = request.getKeyword();
             int userId = accessService.getAuthenticatedId(accessToken);
-            List<User> userInfo = userService.adminUserInfo(userId);
+            List<User> userInfo = userService.adminUserInfo(userId,keyword);
             List<adminUserInfoResponse.Data> data = new ArrayList<>();
             for(User user:userInfo){
                 adminUserInfoResponse.Data temp = new adminUserInfoResponse.Data();
+                temp.setUserName(user.getUsername());
                 temp.setNickName(user.getNickname());
                 temp.setUserSex(user.getSex());
                 temp.setUserRole(user.getRole());
@@ -50,6 +52,158 @@ public class Admin {
         catch (Exception e) {
             adminUserInfoResponse response = new adminUserInfoResponse(
                     1,
+                    "服务器内部错误",
+                    false,
+                    null
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    @PostMapping("/user/add")
+    public ResponseEntity<adminUserInfoResponse> userAdd(@RequestBody adminUserInfoRequest request) {
+        try {
+            String accessToken = request.getAccessToken();
+            String userName = request.getUserName();
+            String nickName = request.getNickName();
+            String userSex = request.getUserSex();
+            String userPhone = request.getUserPhone();
+            String userAddress = request.getUserAddress();
+            int adminId = accessService.getAuthenticatedId(accessToken);
+            int role = userService.userInfoByUserid(adminId).getRole();
+            if(role==1){
+                boolean isSuccess = userService.adminUserAdd(userName, nickName, userSex, userPhone, userAddress);
+                adminUserInfoResponse response;
+                if(isSuccess){
+                    response = new adminUserInfoResponse(
+                            0,
+                            "添加用户成功",
+                            true,
+                            null
+                    );
+                }
+                else{
+                    response = new adminUserInfoResponse(
+                            1,
+                            "添加用户失败",
+                            false,
+                            null
+                    );
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
+            else{
+                adminUserInfoResponse response = new adminUserInfoResponse(
+                        1,
+                        "无管理员权限",
+                        false,
+                        null
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+        }
+        catch (Exception e) {
+            adminUserInfoResponse response = new adminUserInfoResponse(
+                    2,
+                    "服务器内部错误",
+                    false,
+                    null
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    @PostMapping("/user/update")
+    public ResponseEntity<adminUserInfoResponse> userUpdate(@RequestBody adminUserInfoRequest request) {
+        try {
+            String accessToken = request.getAccessToken();
+            String userName = request.getUserName();
+            String nickName = request.getNickName();
+            String userSex = request.getUserSex();
+            String userPhone = request.getUserPhone();
+            String userAddress = request.getUserAddress();
+            int adminId = accessService.getAuthenticatedId(accessToken);
+            int role = userService.userInfoByUserid(adminId).getRole();
+            if(role==1) {
+                boolean isSuccess = userService.adminUserUpdate(userName, nickName, userSex, userPhone, userAddress);
+                adminUserInfoResponse response;
+                if(isSuccess){
+                    response = new adminUserInfoResponse(
+                            0,
+                            "更新用户信息成功",
+                            true,
+                            null
+                    );
+                }
+                else{
+                    response = new adminUserInfoResponse(
+                            1,
+                            "更新用户信息失败",
+                            false,
+                            null
+                    );
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
+            else{
+                adminUserInfoResponse response = new adminUserInfoResponse(
+                        1,
+                        "无管理员权限",
+                        false,
+                        null
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+        }
+        catch (Exception e) {
+            adminUserInfoResponse response = new adminUserInfoResponse(
+                    2,
+                    "服务器内部错误",
+                    false,
+                    null
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    @PostMapping("/user/delete")
+    public ResponseEntity<adminUserInfoResponse> userDelete(@RequestBody adminUserInfoRequest request) {
+        try {
+            String accessToken = request.getAccessToken();
+            String userName = request.getUserName();
+            int adminId = accessService.getAuthenticatedId(accessToken);
+            int role = userService.userInfoByUserid(adminId).getRole();
+            if(role==1) {
+                boolean isSuccess = userService.adminUserDelete(userName);
+                adminUserInfoResponse response;
+                if(isSuccess){
+                    response = new adminUserInfoResponse(
+                            0,
+                            "删除用户成功",
+                            true,
+                            null
+                    );
+                }
+                else{
+                    response = new adminUserInfoResponse(
+                            1,
+                            "删除用户失败",
+                            false,
+                            null
+                    );
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
+            else{
+                adminUserInfoResponse response = new adminUserInfoResponse(
+                        1,
+                        "无管理员权限",
+                        false,
+                        null
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+        }
+        catch (Exception e) {
+            adminUserInfoResponse response = new adminUserInfoResponse(
+                    2,
                     "服务器内部错误",
                     false,
                     null
