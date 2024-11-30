@@ -2,6 +2,9 @@
   <div class="table-container">
     <el-form :inline="true" :model="formInline" class="form-inline">
     </el-form>
+
+    <el-button v-if="isAdmin" type="primary" @click="onAddBookIsbn">添加图书</el-button>
+
     <el-table ref="filterTableRef" class="table-list" row-key="book_id"
               :data="tableData.filter((data) => !search || data.title.toLowerCase().includes(search.toLowerCase()))"
               style="width: 100%">
@@ -24,12 +27,58 @@
           <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
                          title="确定借阅这本书吗？" @confirm="onBorrowBook(scope.$index, scope.row)">
             <template #reference>
-              <el-button size="mini" type="danger">借阅</el-button>
+              <el-button size="mini" type="primary">借阅</el-button>
             </template>
           </el-popconfirm>
         </template>
       </el-table-column>
+      <el-table-column width="120">
+        <template #default="scope">
+          <el-popconfirm
+              confirm-button-text="确定"
+              cancel-button-text="取消"
+              icon="el-icon-info"
+              icon-color="red"
+              title="确定删除这本书吗？"
+              @confirm="handleDelete(scope.$index, scope.row)"
+          >
+            <template #reference>
+              <!-- 使用 v-if 控制按钮是否显示 -->
+              <el-button v-if="isAdmin" size="mini" type="danger">删除</el-button>
+            </template>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+      <el-table-column width="120">
+        <template #default="scope">
+              <el-button v-if="isAdmin" size="mini" type="danger" @click="modifyPop(scope.row)">修改</el-button>
+        </template>
+      </el-table-column>
     </el-table>
+
+    <el-dialog v-model="modifyFormVisible" title="修改书籍信息">
+      <el-form :model="form">
+        <el-form-item label="书名" :label-width="formLabelWidth">
+          <el-input v-model="form.title" autocomplete="on"></el-input>
+        </el-form-item>
+        <el-form-item label="ISBN" :label-width="formLabelWidth">
+          <el-input v-model="form.isbn" autosize type="textarea"/>
+        </el-form-item>
+        <el-form-item label="作者" :label-width="formLabelWidth">
+          <el-input v-model="form.author" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="出版社" :label-width="formLabelWidth">
+          <el-input v-model="form.publisher" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="价格" :label-width="formLabelWidth">
+          <el-input v-model="form.price" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="modifyFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleEdit()">确 定</el-button>
+      </div>
+    </el-dialog>
 
     <el-dialog v-model="detailFormVisible" title="书籍详情">
       <el-form :model="form">
@@ -63,12 +112,6 @@
         <el-form-item label="出版社&nbsp;&nbsp;" :label-width="formLabelWidth">
           {{ form.publisher }}
         </el-form-item>
-        <el-form-item label="应还日期&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.return_time }}
-        </el-form-item>
-        <el-form-item label="借书时间&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.lend_time }}
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="detailFormVisible = false">确 定</el-button>
@@ -89,12 +132,14 @@
 
   </div>
 </template>
+
 <script lang="ts">
 import { computed, defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import permission from '@/directive/permission'
 import Service from '../api/index'
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus"
+import axios from 'axios'
 
 export default defineComponent({
   name: 'bookList',
@@ -112,23 +157,28 @@ export default defineComponent({
       modifyFormVisible: false,
       detailFormVisible: false,
       form: {},
+      isAdmin: false,  // 默认不是管理员
     })
     const formInline = reactive({
       user: '',
       region: ''
     })
-    // const total = computed(() => state.tableData.length)
-    // A quick fix here
     const total = 1
 
-    onMounted(() => {
-      // eslint-disable-next-line no-console
-      getBookList()
-    })
-    // methods
-    const resetDateFilter = () => {
-      filterTableRef.value.clearFilter('date')
+    // 获取用户角色
+    const getUserRole = () => {
+      const role = localStorage.getItem('role');
+      if (role === 'admin') {
+        state.isAdmin = true;  // 当前用户是管理员
+      } else {
+        state.isAdmin = false;  // 当前用户不是管理员
+      }
     }
+
+    onMounted(() => {
+      getBookList()
+      getUserRole()  // 获取当前用户角色
+    })
 
     const getBookList = () => {
       console.log("getPersonalBookList exc")
@@ -138,41 +188,36 @@ export default defineComponent({
             state.tableData = []
             console.log('getBookList get')
             console.log(res)
-            var data = res.data
+            const data = res.data
             for (let i = 0; i < data.length; i++) {
-              var record = {
+              const record = {
                 isbn: data[i].isbn,
                 title: data[i].title,
                 price: data[i].price,
                 author: data[i].author,
                 publisher: data[i].publisher,
                 borrownum: data[i].borrownum,
-                }
+              }
               state.tableData.push(record)
             }
           } else {
             console.log('getPersonalBookList RES MISS')
           }
-        });
+        })
       } catch (err) {
         ElMessage({
           type: 'warning',
           message: err.message
         })
       }
+    }
 
+    const resetDateFilter = () => {
+      filterTableRef.value.clearFilter('date')
     }
 
     const clearFilter = () => {
       filterTableRef.value.clearFilter()
-    }
-
-    const formatter = (row: { address: any }) => row.address
-    const filterTag = (value: any, row: { Tag: any }) => row.tag === value
-    const filterStatus = (value: any, row: { status: any }) => row.status === value
-    const filterHandler = (value: any, row: { [x: string]: any }, column: { property: any }) => {
-      const { property } = column
-      return row[property] === value
     }
 
     const modifyPop = (row) => {
@@ -188,7 +233,7 @@ export default defineComponent({
     const handleEdit = () => {
       // eslint-disable-next-line no-console
       state.modifyFormVisible = false
-      let record = state.form
+      const record = state.form
       state.form = {}
       try {
         Service.postModifyBookIsbn(record).then((res) => {
@@ -196,7 +241,7 @@ export default defineComponent({
             // console.log(res)
           } else {
           }
-        });
+        })
       } catch (err) {
         ElMessage({
           type: 'warning',
@@ -204,10 +249,18 @@ export default defineComponent({
         })
       }
     }
+
     const handleDelete = (index: any, row: any) => {
       // eslint-disable-next-line no-console
+      if (!state.isAdmin) {
+        ElMessage({
+          type: 'warning',
+          message: '您没有权限删除此书籍'
+        })
+        return
+      }
       console.log(index, row)
-      let record = {
+      const record = {
         isbn: row.isbn
       }
       try {
@@ -216,7 +269,7 @@ export default defineComponent({
             // console.log(res)
           } else {
           }
-        });
+        })
       } catch (err) {
         ElMessage({
           type: 'warning',
@@ -225,6 +278,7 @@ export default defineComponent({
       }
       state.tableData.splice(index, 1)
     }
+
     const handleSizeChange = (val: any) => {
       // eslint-disable-next-line no-console
       console.log(`每页 ${val} 条`)
@@ -232,29 +286,13 @@ export default defineComponent({
       // request api to change tableData
     }
 
-     // 分页数据处理
-     // @param data [Array] 需要分页的数据
-     //  @param num [Number] 当前第几页
-     //  @param size [Number] 每页显示多少条
-    // const getList = (data, num, size) => {
-    //   let list, start, end
-    //   start = (num - 1) * size
-    //   end = start + size
-    //   list = data.filter((item, index) => {
-    //     return index >= start && index < end
-    //   })
-    //   list.forEach((item, index) => {
-    //     item.seq = index + start
-    //   })
-    //   return list
-    // }
-
     const handleCurrentChange = (val: any) => {
       // eslint-disable-next-line no-console
       console.log(`当前页: ${val}`)
       state.currentPage = val
       // request api to change tableData
     }
+
     const onSubmit = () => {
       // eslint-disable-next-line no-console
       console.log('submit!')
@@ -262,7 +300,7 @@ export default defineComponent({
 
     const onAddBookIsbn = () => {
       // eslint-disable-next-line no-console
-      router.replace('/Book/bookIsbnAdd')
+      router.replace('/Book/bookAdd')
     }
 
     const onAddBookEntity = () => {
@@ -270,8 +308,21 @@ export default defineComponent({
       router.replace('/Book/bookEntityAdd')
     }
 
-    const onBorrowBook = () => {
-      router.replace('../../borrowBook')
+    const onBorrowBook = (index: any, row: any) => {
+      try {
+        Service.borrowBook(row.id).then((res) => {
+          if (res) {
+            // console.log(res)
+          } else {
+          }
+        })
+      } catch (err) {
+        ElMessage({
+          type: 'warning',
+          message: err.message
+        })
+      }
+      state.tableData.splice(index, 1)
     }
 
     return {
@@ -283,31 +334,16 @@ export default defineComponent({
       onSubmit,
       onAddBookIsbn,
       onAddBookEntity,
+      onBorrowBook,
       handleEdit,
       handleDelete,
       filterTableRef,
       resetDateFilter,
       clearFilter,
-      formatter,
-      filterTag,
-      filterStatus,
-      filterHandler,
       modifyPop,
       detailPop,
     }
   }
 })
 </script>
-<style lang="stylus" scoped>
-.table-container{
-    .form-inline{
-        margin:15px;
-        text-align:left;
-    }
-    .table-list{
-        margin:15px;
-    }
-
-}
-</style>
 
