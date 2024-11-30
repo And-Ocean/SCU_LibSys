@@ -79,13 +79,17 @@ public class UserService extends ServiceImpl<UserMapper, User> {
 
     public int register(String email,String username, String password) {
         try {
+            String nickname = "";
+            String usersex = "";
+            String userphone = "";
+            String useraddress = "";
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             String passwordBCrypt = encoder.encode(password);
-            int role = 0; // 默认为员工
+            int role = 0; // 默认为一般用户
             if (userMapper.findByUserName(username) != null) {
                 return 0;
             }
-            return userMapper.insertUser(email, username,passwordBCrypt, role);
+            return userMapper.adminInsertUser(username,nickname, usersex, userphone, useraddress,passwordBCrypt, role);
         } catch (Exception e) {
             // 记录异常信息
             e.printStackTrace();
@@ -140,12 +144,17 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             return -1; // 表示重置密码失败
         }
     }
-    public List<User> adminUserInfo(int user_id){
+    public List<User> adminUserInfo(int user_id,String keyword){
         try {
             User user = userMapper.findByUserId(user_id);
             int role = user.getRole();
             if (role==1){
-                return userMapper.findAllUser();
+                if(keyword.equals("")) {
+                    return userMapper.findAllUser();
+                }
+                else{
+                    return userMapper.findUserWithKeyword(keyword);
+                }
             }
             return null;
         }
@@ -153,5 +162,20 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             e.printStackTrace();
             return null;
         }
+    }
+    public boolean adminUserAdd(String username,String nickname,String sex,String phone,String address){
+        String password = "123456";//初始密码
+        int role = 0;//默认为一般用户
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String passwordBCrypt = encoder.encode(password);
+        return userMapper.adminInsertUser(username,nickname,sex,phone,address,passwordBCrypt,0)>0;
+    }
+    public boolean adminUserUpdate(String userName,String nickName,String userSex,String userPhone,String userAddress){
+        int id = userMapper.findByUserName(userName).getId();
+        return userMapper.adminUpdateUserInfo(userName,nickName,userSex,userPhone,userAddress,id)>0;
+    }
+    public boolean adminUserDelete(String userName){
+        int id = userMapper.findByUserName(userName).getId();
+        return userMapper.adminDeleteUser(id)>0;
     }
 }

@@ -6,11 +6,11 @@ const roleApi = {
 
 class Service {
   /**
-   * @description POST 保存授权菜单权限
+   * @description POST 管理员查询用户信息列表
    */
-  static postAuthPermission(data: any) {
+  static postAdminQueryUserList(data: any) {
     return request({
-      url: 'http://localhost:8080/api/auth/permission/routes',//roleApi.queryAuthedPermission,
+      url: 'http://localhost:8080/api/admin/user/list',
       method: 'POST',
       json: true,
       data
@@ -23,11 +23,45 @@ class Service {
     })
   }
   /**
-   * @description POST 管理员查询用户信息列表
+   * @description POST 修改当前用户信息
    */
-  static postAdminQueryUserList(data: any) {
+  static postAdminUpdateUserInfo(data: any) {
     return request({
-      url: 'http://localhost:8080/api/admin/user/list',
+      url: 'http://localhost:8080/api/admin/user/update',
+      method: 'POST',
+      json: true,
+      data
+    }).then((res) => {
+      console.log(res)
+      if (res.status === 0) {
+        return Promise.resolve(res)
+      }
+      return Promise.reject(res)
+    })
+  }
+  /**
+   * @description POST 新增用户
+   */
+  static postAdminAddUser(data: any) {
+    return request({
+      url: 'http://localhost:8080/api/admin/user/add',
+      method: 'POST',
+      json: true,
+      data
+    }).then((res) => {
+      console.log(res)
+      if (res.status === 0) {
+        return Promise.resolve(res)
+      }
+      return Promise.reject(res)
+    })
+  }
+  /**
+   * @description POST 删除用户
+   */
+  static postAdminDeleteUser(data: any) {
+    return request({
+      url: 'http://localhost:8080/api/admin/user/delete',
       method: 'POST',
       json: true,
       data

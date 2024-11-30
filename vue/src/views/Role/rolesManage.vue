@@ -1,7 +1,5 @@
 <template>
   <div>
-    <el-alert title="Tips:点击【新增】按钮进行新增员工；点击【编辑】按钮，对员工的部门以及职能信息进行操作！" type="warning"> </el-alert>
-    <el-alert title="Tips:权限控制体验：【管理员账号为：admin@outlook.com】、【超级管理员账号为：super@outlook.com】" type="info"> </el-alert>
     <el-card class="card-ctrl">
       <el-row>
         <el-col :span="8" style="text-align: left">
@@ -9,18 +7,23 @@
             <el-icon><plus /></el-icon>
             新增</el-button
           >
-          <el-button type="success" size="small" @click="onRefresh">
-            <el-icon><refresh /></el-icon>
-            刷新</el-button
-          >
+        </el-col>
+        <el-col :span="16" style="text-align: right">
+          <el-input
+              v-model="searchKeyword"
+              placeholder="请输入关键词"            style="width: 200px; margin-right: 10px"
+          ></el-input>
+          <el-button type="primary" size="small" @click="onSearch">搜索</el-button>
         </el-col>
       </el-row>
       <br />
       <el-table v-loading="loading" :data="data" stripe class="table">
-        <el-table-column prop="userName" label="用户名" align="center"></el-table-column>
-        <el-table-column prop="userDepartment" label="部门" align="center"></el-table-column>
-        <el-table-column prop="userRole" label="职位" align="center"></el-table-column>
+        <el-table-column prop="userName" label="学号" align="center"></el-table-column>
+        <el-table-column prop="nickName" label="用户名" align="center"></el-table-column>
+        <el-table-column prop="userSex" label="性别" align="center"></el-table-column>
         <el-table-column prop="userPhone" label="电话号码" align="center"></el-table-column>
+        <el-table-column prop="userAddress" label="个人住址" align="center"></el-table-column>
+
 
         <el-table-column label="操作" align="center">
           <template #default="scope">
@@ -52,7 +55,7 @@
       </div>
     </el-card>
 
-    <el-dialog v-model="edit_visible" center :title="posted.userRow.userRole">
+    <el-dialog v-model="edit_visible" center :title="posted.userRow.nickName">
       <role-edit :current-row="posted.userRow" @success="onEditSuccess"></role-edit>
     </el-dialog>
     <el-dialog v-model="add_visible" title="新增员工">
@@ -67,27 +70,42 @@ import { Edit, Minus, Plus, Refresh } from '@element-plus/icons-vue'
 import RoleEdit from './rolesEdit.vue'
 import RoleNew from './rolesNew.vue'
 import Service from './api/index'
-const useConfirmDelete = (index: any) => {
-  console.log(index)
-  ElMessageBox.confirm('此操作将删除该员工所有数据, 是否继续?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(() => {
-      // 此处执行接口异步删除员工
-      ElMessage({
-        type: 'success',
-        message: '删除成功'
-      })
+const useConfirmDelete = async (row: any) => {
+  return new Promise((resolve, reject) => {
+    ElMessageBox.confirm('此操作将删除该用户所有数据, 是否继续?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: '已取消删除'
-      })
-    })
-}
+        .then(async () => {
+          // 此处执行接口异步删除员工
+          const data = {
+            userName: row.userName,
+            accessToken: sessionStorage.getItem('accessToken')
+          };
+          const res = await Service.postAdminDeleteUser(data);
+          if (res.status === 0) {
+            ElMessage({
+              type: 'success',
+              message: '删除成功'
+            });
+          } else {
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            });
+            reject();
+          }
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消删除'
+          });
+          reject();
+        });
+  });
+};
 export default defineComponent({
   name: 'RoleManage',
   components: {
@@ -108,7 +126,7 @@ export default defineComponent({
       },
       param: {
         limit: 10,
-        page: 1
+        page: 1,
       },
       data: [
         //{ userName: '超级管理员', userDepartment:'',userRole:'',userPhone:''},
@@ -121,10 +139,13 @@ export default defineComponent({
       posted: {
         userRow: {
           userName:'',
-          userRole: '',
-          userDepartment:''
+          nickName:'',
+          userSex: '',
+          userPhone:'',
+          userAddress:''
         }
-      }
+      },
+      searchKeyword: '' // 添加 searchKeyword 变量
     })
     // 动态计算total;
     const total = computed(() => state.data.length)
@@ -132,13 +153,18 @@ export default defineComponent({
      * @description 请求接口获取当前设置角色，默认始终有超级管理员角色
      */
     const fetchData = async() => {
-      const data = {'accessToken':sessionStorage.getItem('accessToken')}
+      state.is_search = false
+      const data = {
+        'accessToken':sessionStorage.getItem('accessToken'),
+        'keyword': state.searchKeyword // 添加搜索关键字
+      }
       const adminUserInfo = await Service.postAdminQueryUserList(data)
       if (adminUserInfo.status === 0) {
         state.data = adminUserInfo.data
       }
     }
-    const onCurrentChange = () => {
+    const onCurrentChange = (val:number) => {
+      state.param.page = val
       fetchData()
     }
     const onSizeChange = (val: number) => {
@@ -147,20 +173,14 @@ export default defineComponent({
     }
     const onCreate = () => {
       state.add_visible = true
+      fetchData()
     }
     const onCreateSuccess = (val: any) => {
-      console.log(val)
-      const newRow = { userRole: val.userRole}
-      state.data.push(newRow)
       state.add_visible = false
       fetchData()
     }
     const onEditSuccess = () => {
       state.edit_visible = false
-      fetchData()
-    }
-    const onRefresh = () => {
-      state.is_search = false
       fetchData()
     }
     /**
@@ -169,14 +189,26 @@ export default defineComponent({
     const onEdit = (index: any, row: any) => {
       console.log('row', row)
       state.posted.userRow.userName = row.userName
-      state.posted.userRow.userRole = row.userRole
-      state.posted.userRow.userDepartment = row.userDepartment
+      state.posted.userRow.nickName = row.nickName
+      state.posted.userRow.userSex = row.userSex
+      state.posted.userRow.userPhone = row.userPhone
+      state.posted.userRow.userAddress = row.userAddress
       state.edit_visible = true
     }
     const onDelete = (index: any, row: any) => {
       console.log(index, row)
-      useConfirmDelete(index)
+      useConfirmDelete(row).then(() => {
+        fetchData();
+      });
     }
+    const onSearch = () => {
+      state.param.page = 1; // 重置页码为第一页
+      fetchData();
+    };
+
+    //初始调用
+    fetchData()
+
     return {
       ...toRefs(state),
       total,
@@ -185,9 +217,9 @@ export default defineComponent({
       onCreate,
       onCreateSuccess,
       onEditSuccess,
-      onRefresh,
       onEdit,
       onDelete,
+      onSearch,
       fetchData
     }
   }

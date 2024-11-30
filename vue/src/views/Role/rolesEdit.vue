@@ -1,18 +1,22 @@
 <template>
   <div v-loading="loading" class="new">
     <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="100px" title="新增员工">
-      <el-form-item label="名称">
-        <span v-if="row && row.userName">{{ row.userName }}</span>
+      <el-form-item label="学号">
+        <el-input v-model="form.userName" :value="row.userName">{{row.userName}}</el-input>
       </el-form-item>
-      <el-form-item label="员工部门" prop="userDepartment">
-        <el-select v-model="form.userDepartment" placeholder="请选择部门">
-          <el-option v-for="department in departments" :key="department.value" :label="department.label" :value="department.value"></el-option>
+      <el-form-item label="用户名">
+        <el-input v-model="form.nickName" :value="row.nickName">{{row.nickName}}</el-input>
+      </el-form-item>
+      <el-form-item label="性别" prop="userSex">
+        <el-select v-model="form.userSex" placeholder="请选择性别">
+          <el-option v-for="sex in sexs" :key="sex.value" :label="sex.label" :value="sex.value"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="员工职位" prop="userRole">
-        <el-select v-model="form.userRole" placeholder="请选择职能">
-          <el-option v-for="role in roles" :key="role.value" :label="role.label" :value="role.value"></el-option>
-        </el-select>
+      <el-form-item label="手机号">
+        <el-input v-model="form.userPhone" :value="row.userPhone">{{row.userPhone}}</el-input>
+      </el-form-item>
+      <el-form-item label="地址">
+        <el-input v-model="form.userAddress" :value="row.userAddress">{{row.userAddress}}</el-input>
       </el-form-item>
       <el-row class="btn-container">
         <el-button size="mini" type="primary" @click="saveData()"> <i class="fa fa-plus"> </i> 修改 </el-button>
@@ -21,7 +25,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, watchEffect, reactive, toRef, toRefs } from 'vue'
+import { computed, defineComponent, watchEffect, reactive, toRef, toRefs } from 'vue'
 import { useStore } from '@/store'
 import Service from './api/index'
 
@@ -29,12 +33,12 @@ interface stateTypes {
   url: String
   purl: String
   loading: Boolean
-  form: { key: String; label: String }
-  menu: {
-    loading: Boolean
-    url: String
-    data: { key: String; label: String }[]
-    form: String[]
+  form: {
+    userSex: string
+    userName: string
+    nickName: string
+    userPhone: string
+    userAddress: string
   }
 }
 export default defineComponent({
@@ -42,7 +46,7 @@ export default defineComponent({
   props: {
     currentRow: {
       type: Object,
-      default: () => ({ userName:'',userDepartment:'',userRole: ''})
+      default: () => ({ userName:'',nickName:'',userSex:'',userPhone: '',userAddress:''})
     }
   },
   emits: ['success'],
@@ -57,95 +61,73 @@ export default defineComponent({
       url: `/role/allow`,
       purl: `/role/permissions`,
       loading: false,
-      form: { key: '', label: '' },
-      menu: {
-        loading: false,
-        url: `/menu/list`,
-        data: [],
-        form: []
+      form: {
+        userSex: '',
+        userName: '',
+        nickName: '',
+        userPhone: '',
+        userAddress: ''
       }
     })
     const rules = {
-      userId: [
-        { required: true, message: '请输入员工ID', trigger: 'blur' },
-        { type:'number', message: '请输入有效数字', trigger: 'blur' }
+      userName: [
+        { required: true, message: '请输入学号ID', trigger: 'blur' },
       ],
-      userDepartment: [
-        { required: true, message: '请选择部门', trigger: 'change' },
+      nickName: [
+        { required: true, message: '请输入用户名', trigger: 'blur' },
       ],
-      userRole: [
-        { required: true, message: '请输入员工职能', trigger: 'change' },
+      userSex: [
+        { required: true, message: '请选择性别', trigger: 'change' },
+      ],
+      userPhone: [
+        { required: true, message: '请输入电话号码', trigger: 'change' },
+      ],
+      userAddress: [
+        { required: true, message: '请输入地址', trigger: 'change'}
       ]
     }
-    const departments = [
-      { value: 'IT', label: '技术部' },
-      { value: 'Market', label: '市场部' },
-      { value: 'HR', label: '人力资源部' }
-    ]
-
-    const roles = [
-      { value: 'admin', label: '管理员' },
-      { value: 'manager', label: '部门经理' },
-      { value: 'worker', label: '员工' }
+    const sexs = [
+      { value: '男', label: '男' },
+      { value: '女', label: '女' }
     ]
     const row = computed(() => currentRow.value)
     // 可访问
     const routes = computed(() => store.state.permissionModule.routes)
-
     /**
-     * @description 异步获取已经授权的菜单
+     * 监听 currentRow 的变化并更新 form
      */
-    const fetchData = async () => {
-      const data = {
-        roleName: row.value.userRole
+    watchEffect(() => {
+      if (row.value) {
+        state.form.userSex = row.value.userSex || '男'
+        state.form.userName = row.value.userName
+        state.form.nickName = row.value.nickName
+        state.form.userPhone = row.value.userPhone
+        state.form.userAddress = row.value.userAddress
       }
-      // 后端根据角色名称，查询授权菜单
-      const res = await Service.postAuthPermission(data)
-      if (res?.data) {
-        const { authedRoutes } = res.data
-        state.menu.form = authedRoutes
-      }
-    }
-    /**
-     * @description 异步获取所有的菜单
-     */
-    const fetchMenuData = () => {
-      // 模拟获取所有菜单数据；
-      // eslint-disable-next-line no-restricted-syntax
-      for (const i of routes.value) {
-        if (!i?.meta?.hidden) {
-          state.menu.data.push({
-            key: i?.path,
-            label: i?.meta?.title[lang.value] as String
-          })
-        }
-      }
-    }
-
+    })
     /**
      * @description 保存当前角色授权菜单
      */
     const saveData = () => {
-      console.log('form is ', state.menu.form)
-      //  省略接口：向后端接口传递已经授权菜单名称；  state.menu.form
-      emit('success')
+      const data ={
+        userName: state.form.userName,
+        nickName: state.form.nickName,
+        userSex: state.form.userSex,
+        userPhone: state.form.userPhone,
+        userAddress: state.form.userAddress,
+        accessToken: sessionStorage.getItem('accessToken')
+      }
+      Service.postAdminUpdateUserInfo(data).then(res => {
+        emit('success')
+      })
     }
-    onMounted(() => {
-      // 获取 auth Menu Info
-      fetchMenuData()
-    })
-    // 使用watchEffect 监听所用到的变化时做出的副作用反应；
-    watchEffect(() => {
-      fetchData()
-    })
+
     return {
       ...toRefs(state),
       rules,
-      departments,
-      roles,
+      sexs,
       lang,
       row,
-      fetchMenuData,
       saveData
     }
   }
