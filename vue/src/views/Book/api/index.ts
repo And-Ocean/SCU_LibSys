@@ -10,7 +10,7 @@ const bookApi = {
   modifyBookEntity: '/api/book/modifyBookEntity',
   addBookEntity: '/api/book/addBookEntity',
   deleteBookEntity: '/api/book/deleteBookEntity',
-  borrowBook: 'api/book/borrowBook',
+  borrowBook: 'api/bookBorrow/borrowBook',
 }
 
 
@@ -145,11 +145,12 @@ class Service {
   }
 
   static borrowBook(record:any) {
+    let data = {book_isbn:record, acsTkn = sessionStorage.getItem('accessToken')}
     return request({
       url: bookApi.localHost + bookApi.borrowBook,
       method: 'POST',
       json: true,
-      data: record,
+      data: data,
     }).then((res) => {
       if (res.status === 0) {
         return res
