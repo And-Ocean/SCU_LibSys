@@ -6,15 +6,15 @@
     <el-button v-if="isAdmin" type="primary" @click="onAddBookIsbn">添加图书</el-button>
 
     <el-table ref="filterTableRef" class="table-list" row-key="book_id"
-              :data="paginatedData" style="width: 100%">
+              :data="paginatedData" stripe style="width: 100%">
     <el-table-column width="10"></el-table-column>
-    <el-table-column prop="title" label="书名" truncated></el-table-column>
-    <el-table-column prop="isbn" label="ISBN" truncated></el-table-column>
+    <el-table-column prop="title" label="书名" truncated width="200"></el-table-column>
+    <el-table-column prop="isbn" label="ISBN" truncated width="200"></el-table-column>
     <el-table-column prop="author" label="作者" width="100"></el-table-column>
-    <el-table-column prop="publisher" label="出版社"></el-table-column>
+    <el-table-column prop="publisher" label="出版社" truncated width="200"></el-table-column>
     <el-table-column align="right">
       <template #header>
-        <el-input v-model="search" size="mini" placeholder="输入书名关键字搜索"/>
+        <el-input v-model="search" size="mini" placeholder="输入书名关键字搜索" @input="watchSearch" />
       </template>
       <template #default="scope">
         <el-button size="mini" @click="detailPop(scope.row)">书籍详情</el-button>
@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import permission from '@/directive/permission'
 import Service from '../api/index'
@@ -189,10 +189,30 @@ export default defineComponent({
 
     // 更新分页数据
     const updatePaginatedData = () => {
+      // 过滤包含搜索关键字的书籍
+      let filteredBooks = state.allBooks;
+
+      // 如果有搜索关键词，按书名进行过滤
+      if (state.search) {
+        filteredBooks = filteredBooks.filter((book) =>
+            book.title.toLowerCase().includes(state.search.toLowerCase()) // 忽略大小写
+        );
+      }
+
+      // 更新分页数据
       const start = (state.currentPage - 1) * state.pageSize;
       const end = state.currentPage * state.pageSize;
-      state.paginatedData = state.allBooks.slice(start, end);  // 根据当前页和页大小提取分页数据
-    }
+      state.paginatedData = filteredBooks.slice(start, end);  // 根据当前页和页大小提取分页数据
+      state.total = filteredBooks.length;  // 更新总记录数
+    };
+
+// 监听 `search` 字段的变化，实时更新分页数据
+    const watchSearch = () => {
+      updatePaginatedData();  // 过滤数据并更新分页
+    };
+
+// 监听 `search` 输入框
+    watch(() => state.search, watchSearch);
 
     // 当前页变更时更新分页数据
     const handleCurrentChange = (val: number) => {
@@ -321,6 +341,7 @@ export default defineComponent({
       clearFilter,
       modifyPop,
       detailPop,
+      watchSearch,
     }
   }
 })
