@@ -145,7 +145,7 @@ class Service {
   }
 
   static borrowBook(record:any) {
-    let data = {book_isbn:record, acsTkn = sessionStorage.getItem('accessToken')}
+    let data = {book_isbn:record, acsTkn:sessionStorage.getItem('accessToken')}
     return request({
       url: bookApi.localHost + bookApi.borrowBook,
       method: 'POST',
