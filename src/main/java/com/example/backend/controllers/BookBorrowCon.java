@@ -1,6 +1,9 @@
 package com.example.backend.controllers;
 
+import com.example.backend.entity.BookEntity;
 import com.example.backend.entity.ResponseBase;
+import com.example.backend.entity.borrowBookDTO.IdWithTk;
+import com.example.backend.entity.borrowBookDTO.IsbnWithTk;
 import com.example.backend.entity.userInfo.adminUserInfoRequest;
 import com.example.backend.services.AccessService;
 import com.example.backend.services.BookBorrowService;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.entity.borrowBookDTO.BookBorrowedDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -57,5 +61,26 @@ public class BookBorrowCon {
         return response;
     }
 
+    @PostMapping("/borrowBook")
+    public ResponseBase borrowBook(@RequestBody IsbnWithTk isbnWithTk) {
+        ResponseBase response = new ResponseBase();
+        ArrayList<BookEntity> booksAvailable = bookBorrowService.getBooksAvailable(isbnWithTk.getIsbn());
+        response.pushData(booksAvailable);
+        return response;
+    }
 
+    @PostMapping("/borrowABookById")
+    public ResponseBase borrowABookById(@RequestBody IdWithTk idWithTk) {
+        ResponseBase response = new ResponseBase();
+        try {
+            String accessToken = idWithTk.getAccessToken();
+            int userId = accessService.getAuthenticatedId(accessToken);
+            bookBorrowService.borrowExecute(userId, idWithTk.getId(), idWithTk.getIsbn());
+        }
+        catch (Exception e) {
+            response.setStatus(-1);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
 }

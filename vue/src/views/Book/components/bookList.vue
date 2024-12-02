@@ -103,6 +103,16 @@
       </div>
     </el-dialog>
 
+    <el-dialog v-model="borrowFormVisible" title="可借的书籍位置" width="25%">
+      <div v-for="item in borrowList" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span>{{ item.place }}</span>
+        <el-button @click="borrowABook(item)">借阅这本</el-button>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="borrowFormVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
     <el-pagination
         :hide-on-single-page="true"
         :current-page="currentPage"
@@ -144,7 +154,10 @@ export default defineComponent({
       detailFormVisible: false,
       form: {},
       isAdmin: false,  // 默认不是管理员
-      total: 0, // 总记录数
+      total: 0, // 总记录数,
+
+      borrowFormVisible: false,
+      borrowList: {},
     })
     const formInline = reactive({
       user: '',
@@ -310,9 +323,11 @@ export default defineComponent({
 
     const onBorrowBook = (index: any, row: any) => {
       try {
-        Service.borrowBook(row.id).then((res) => {
+        Service.getBorrowableBooks(row).then((res) => {
           if (res) {
-            // console.log(res)
+            // console.log("可借列表已得到")
+            state.borrowList = res.data[0];
+            state.borrowFormVisible = true
           } else {
           }
         })
@@ -324,6 +339,23 @@ export default defineComponent({
       }
       state.tableData.splice(index, 1)
     }
+
+    const borrowABook = (item:any) => {
+      try {
+        Service.borrowABookHandle(item).then((res) => {
+          if (res) {
+          } else {
+
+          }
+        })
+      } catch (err) {
+        ElMessage({
+          type: 'warning',
+          message: err.message
+        })
+      }
+    }
+
 
     return {
       formInline,
@@ -342,6 +374,7 @@ export default defineComponent({
       modifyPop,
       detailPop,
       watchSearch,
+      borrowABook
     }
   }
 })

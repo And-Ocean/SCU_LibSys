@@ -12,7 +12,6 @@ public class BookBorrowedDTO {
     private String lend_time;
     private String return_time;
     private char returned;
-
     private String isbn;
     private String status;
     private String place;
