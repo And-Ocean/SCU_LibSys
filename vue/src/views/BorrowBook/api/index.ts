@@ -24,12 +24,12 @@ class Service {
     })
   }
 
-  static returnBook(lend_id:any) {
+  static returnBook(row:any) {
     return request({
       url: borrowBookApi.localHost + borrowBookApi.returnBooksByLendId,
       method: 'POST',
       json: true,
-      data: {lend_id: lend_id},
+      data: row,
     }).then((res) => {
       // console.log(res)
       if (res.status === 0) {

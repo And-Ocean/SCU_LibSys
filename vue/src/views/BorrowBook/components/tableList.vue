@@ -219,7 +219,7 @@ export default defineComponent({
       // eslint-disable-next-line no-console
       // console.log(index, row)
       try {
-        Service.returnBook(row.lend_id).then((res) => {
+        Service.returnBook(row).then((res) => {
           if (res) {
             // console.log(res)
           } else {

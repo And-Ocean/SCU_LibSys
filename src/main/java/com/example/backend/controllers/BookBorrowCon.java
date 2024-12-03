@@ -57,7 +57,8 @@ public class BookBorrowCon {
             response.setMessage("Something went wrong with lend_id, it does not exist");
             return response;
         }
-        bookBorrowService.returnByLendId(lend_id);
+        String isbn = bookBorrowedDTO.getIsbn();
+        bookBorrowService.returnByLendId(lend_id, isbn);
         return response;
     }
 

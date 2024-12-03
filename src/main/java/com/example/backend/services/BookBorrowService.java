@@ -22,9 +22,11 @@ public class BookBorrowService extends ServiceImpl<BookBorrowMapper, BookBorrowe
         return bookBorrowMapper.selectBookBorrowedDTO(user_id);
     }
 
-    public int returnByLendId(int lend_id) {
+    public int returnByLendId(int lend_id, String isbn) {
         bookBorrowMapper.returnSetYesByLendId(lend_id);
         bookBorrowMapper.statusSetYesByLendId(lend_id);
+        System.out.println(isbn);
+        bookBorrowMapper.borrowNumSet(isbn);
         return 0;
     }
 

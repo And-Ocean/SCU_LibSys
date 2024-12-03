@@ -344,8 +344,16 @@ export default defineComponent({
       try {
         Service.borrowABookHandle(item).then((res) => {
           if (res) {
+            ElMessage({
+              type: 'success',
+              message: "借书成功！"
+            })
+            state.borrowFormVisible = false
           } else {
-
+            ElMessage({
+              type: 'warning',
+              message: "请刷新页面"
+            })
           }
         })
       } catch (err) {

@@ -28,13 +28,16 @@ public interface BookBorrowMapper extends BaseMapper<BookBorrowedDTO> {
     @Update("update bookentity set status = 1 where id = ( " +
             "select book_id from lends where id = #{lend_id})")
     void statusSetYesByLendId(int lend_id);
+
+    @Update("update bookisbn set borrownum = borrownum + 1 where isbn = #{isbn} ")
+    void borrowNumSet(String isbn);
+
     // status = 1 available
     @Select("select id, isbn, status, place from bookentity where isbn = #{isbn} and status = 1")
     ArrayList<BookEntity>  getBooksAvailable(String isbn);
 
     @Update("update bookentity set status = 0 where id = #{book_id}")
     void updateBookEntityStatus(int book_id);
-
 
     @Update("update bookisbn set borrownum = borrownum - 1 where isbn = #{isbn}")
     void updateBookIsbnBorrowNum(String isbn);
