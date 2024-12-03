@@ -43,23 +43,26 @@
           <div class="demo-image__preview">
             <el-image
                 style="width: 100px; height: 100px"
-                :src="form.url"
+                :src="form.cover_url"
                 :zoom-rate="1.2"
                 :max-scale="7"
                 :min-scale="0.2"
-                :preview-src-list="[form.url]"
+                :preview-src-list="[form.cover_url]"
                 fit="cover"
             />
           </div>
         </el-form-item>
         <el-form-item label="简介&nbsp;&nbsp;" :label-width="formLabelWidth">
-          还没有这个字段
+          {{ form.summary }}
         </el-form-item>
         <el-form-item label="作者&nbsp;&nbsp;" :label-width="formLabelWidth">
           {{ form.author }}
         </el-form-item>
         <el-form-item label="ISBN&nbsp;&nbsp;" :label-width="formLabelWidth">
           {{ form.isbn }}
+        </el-form-item>
+        <el-form-item label="类别&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.category }}
         </el-form-item>
         <el-form-item label="价格&nbsp;&nbsp;" :label-width="formLabelWidth">
           {{ form.price }}
@@ -157,24 +160,8 @@ export default defineComponent({
             state.tableData = []
             // console.log('getBookBorrowed get')
             // console.log(res)
-            var data = res.data[0]
-            for (let i = 0; i < data.length; i++) {
-              var record = {
-                title: data[i].title,
-                isbn: data[i].isbn,
-                status: data[i].status,
-                returned: data[i].returned,
-                lend_time: data[i].lend_time,
-                return_time: data[i].return_time,
-                publisher: data[i].publisher,
-                price: data[i].price,
-                author: data[i].author,
-                url: 'https://www.helloimg.com/i/2024/11/26/6745da68c904e.jpg',
-                lend_id: data[i].lend_id,
-              }
-              state.tableData.push(record)
-            }
-            // console.log(state.tableData)
+            state.tableData = res.data[0]
+            console.log(state.tableData)
           }
         });
       } catch (err) {

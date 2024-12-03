@@ -16,7 +16,7 @@ import java.util.List;
 public interface BookBorrowMapper extends BaseMapper<BookBorrowedDTO> {
 
 
-    @Select("select id as book_id, lend_time, return_time, returned, isbn, status, place, title, price, author, publisher, lend_id, url, summary, category " +
+    @Select("select id as book_id, lend_time, return_time, returned, isbn, status, place, title, price, author, publisher, lend_id, cover_url, summary, category " +
             "from " +
             "(select l.id as lend_id, l.lend_time, l.return_time, l.returned, b.* from lends as l, bookentity as b " +
             "where l.book_id = b.id and l.user_id = #{user_id} and l.returned = 0) as t natural join bookisbn")
