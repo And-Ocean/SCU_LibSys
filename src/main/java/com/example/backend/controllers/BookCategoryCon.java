@@ -52,8 +52,8 @@ public class BookCategoryCon {
         ResponseBase response = new ResponseBase();
 
         // 获取上周的日期列表
-        List<String> lastWeekDates = DateUtils.getLastWeekDates();
-
+        List<String> lastWeekDates = DateUtils.getLastSevenDays();
+        System.out.println(lastWeekDates);
         // 存储每天的借书数量
         List<Integer> dailyLendCounts = new ArrayList<>();
 
@@ -71,26 +71,33 @@ public class BookCategoryCon {
 
 
 
-    public static class DateUtils {
+    public class DateUtils {
 
-        // 获取上周的每一天（周一到周日）
-        public static List<String> getLastWeekDates() {
-            List<String> lastWeekDates = new ArrayList<>();
+        // 获取近七天的每一天（包括今天）
+        public static List<String> getLastSevenDays() {
+            List<String> lastSevenDays = new ArrayList<>();
 
             Calendar calendar = Calendar.getInstance();
-            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK); // 获取今天是星期几
-            // 计算上周的周一
-            calendar.add(Calendar.DAY_OF_YEAR, -(dayOfWeek + 5));  // 上周的周一
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-            // 获取上周的每一天（周一到周日）
-            for (int i = 0; i < 7; i++) {
-                lastWeekDates.add(sdf.format(calendar.getTime()));
-                calendar.add(Calendar.DAY_OF_YEAR, 1);
+            // 获取今天的日期
+            lastSevenDays.add(sdf.format(calendar.getTime()));
+
+            // 获取近六天的日期（从今天开始，向前推六天）
+            for (int i = 1; i < 7; i++) {
+                calendar.add(Calendar.DAY_OF_YEAR, -1);  // 向前推一天
+                lastSevenDays.add(sdf.format(calendar.getTime()));
             }
-            System.out.println(lastWeekDates);
-            return lastWeekDates;
+
+            // 按日期从最早到最近排序
+            return lastSevenDays;
+        }
+
+        public static void main(String[] args) {
+            List<String> dates = getLastSevenDays();
+            System.out.println(dates);
         }
     }
+
 
 }
