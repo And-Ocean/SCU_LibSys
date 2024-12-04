@@ -1,24 +1,24 @@
 <template>
   <div v-loading="loading" class="new">
     <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="100px" title="新增员工">
-      <el-form-item label="学号">
-        <el-input v-model="form.userName" :value="row.userName">{{row.userName}}</el-input>
+      <el-form-item label="学号" prop="userName">
+        <el-input v-model="form.userName">{{row.userName}}</el-input>
       </el-form-item>
-      <el-form-item label="用户名">
-        <el-input v-model="form.nickName" :value="row.nickName">{{row.nickName}}</el-input>
+      <el-form-item label="用户名" prop="nickName">
+        <el-input v-model="form.nickName">{{row.nickName}}</el-input>
       </el-form-item>
       <el-form-item label="性别" prop="userSex">
         <el-select v-model="form.userSex" placeholder="请选择性别">
           <el-option v-for="sex in sexs" :key="sex.value" :label="sex.label" :value="sex.value"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="手机号">
-        <el-input v-model="form.userPhone" :value="row.userPhone">{{row.userPhone}}</el-input>
+      <el-form-item label="手机号" prop="userPhone">
+        <el-input v-model="form.userPhone">{{row.userPhone}}</el-input>
       </el-form-item>
-      <el-form-item label="地址">
-        <el-input v-model="form.userAddress" :value="row.userAddress">{{row.userAddress}}</el-input>
+      <el-form-item label="地址" prop="userAddress">
+        <el-input v-model="form.userAddress">{{row.userAddress}}</el-input>
       </el-form-item>
-      <el-form-item label="角色">
+      <el-form-item label="角色" prop="userRole">
         <el-select v-model="form.userRole" placeholder="请选择角色">
           <el-option v-for="role in roles" :key="role.value" :label="role.label" :value="role.value"></el-option>
         </el-select>
@@ -88,9 +88,13 @@ export default defineComponent({
       ],
       userPhone: [
         { required: true, message: '请输入电话号码', trigger: 'change' },
+        { pattern: /^[0-9]{11}$/, message: '请输入11位数字的电话号码', trigger: 'blur' },
       ],
       userAddress: [
         { required: true, message: '请输入地址', trigger: 'change'}
+      ],
+      userRole: [
+        { required: true, message: '请选择角色', trigger: 'change' }
       ]
     }
     const sexs = [
@@ -111,11 +115,11 @@ export default defineComponent({
     watchEffect(() => {
       if (row.value) {
         state.form.userSex = row.value.userSex || '男'
-        state.form.userName = row.value.userName
-        state.form.nickName = row.value.nickName
-        state.form.userPhone = row.value.userPhone
-        state.form.userAddress = row.value.userAddress
-        state.form.userRole = row.value.userRole
+        state.form.userName = row.value.userName || ''
+        state.form.nickName = row.value.nickName || ''
+        state.form.userPhone = row.value.userPhone || ''
+        state.form.userAddress = row.value.userAddress || ''
+        state.form.userRole = row.value.userRole || 0
       }
     })
     /**
