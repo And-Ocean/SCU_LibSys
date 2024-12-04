@@ -22,14 +22,14 @@ public class BookIsbnService extends ServiceImpl<BookIsbnMapper, BookISBN>{
     public int updateBookISBN(BookISBN record) {
         int res_code = bookIsbnMapper.updateBookISBN(
                 record.getIsbn(), record.getTitle(), record.getPrice(), record.getAuthor(),
-                record.getPublisher(), record.getBorrownum());
+                record.getPublisher(), record.getBorrownum(), record.getCategory(), record.getCover_url(), record.getSummary());
         return res_code;
     }
 
     public int insertBookISBN(BookISBN record) {
         int res_code = bookIsbnMapper.insertBookISBN(
                 record.getIsbn(), record.getTitle(), record.getPrice(), record.getAuthor(),
-                record.getPublisher(), record.getBorrownum());
+                record.getPublisher(), record.getBorrownum(),record.getCategory() ,record.getCover_url(), record.getSummary());
         return res_code;
     }
 

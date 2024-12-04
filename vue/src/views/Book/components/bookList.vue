@@ -11,7 +11,8 @@
     <el-table-column prop="title" label="书名" truncated width="200"></el-table-column>
     <el-table-column prop="isbn" label="ISBN" truncated width="200"></el-table-column>
     <el-table-column prop="author" label="作者" width="100"></el-table-column>
-    <el-table-column prop="publisher" label="出版社" truncated width="200"></el-table-column>
+      <el-table-column prop="category" label="分类" width="100"></el-table-column>
+      <el-table-column prop="publisher" label="出版社" truncated width="200"></el-table-column>
     <el-table-column align="right">
       <template #header>
         <el-input v-model="search" size="mini" placeholder="输入书名关键字搜索" @input="watchSearch" />
@@ -52,6 +53,9 @@
         <el-form-item label="作者" :label-width="formLabelWidth">
           <el-input v-model="form.author" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="简介" :label-width="formLabelWidth">
+          <el-input v-model="form.summary" autosize type="textarea"/>
+        </el-form-item>
         <el-form-item label="出版社" :label-width="formLabelWidth">
           <el-input v-model="form.publisher" autocomplete="off"></el-input>
         </el-form-item>
@@ -74,16 +78,17 @@
           <div class="demo-image__preview">
             <el-image
                 style="width: 100px; height: 100px"
-                :src="form.url"
+                :src="form.cover_url"
                 :zoom-rate="1.2"
                 :max-scale="7"
                 :min-scale="0.2"
-                :preview-src-list="[form.url]"
+                :preview-src-list="[form.cover_url]"
                 fit="cover"
             />
           </div>
         </el-form-item>
         <el-form-item label="简介&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.summary }}
         </el-form-item>
         <el-form-item label="作者&nbsp;&nbsp;" :label-width="formLabelWidth">
           {{ form.author }}

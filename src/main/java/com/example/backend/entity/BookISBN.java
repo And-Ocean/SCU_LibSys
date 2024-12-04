@@ -17,14 +17,20 @@ public class BookISBN {
     private String author;
     private String publisher;
     private String borrownum;
+    private String category;
+    private String cover_url;
+    private String summary;
 
-    public BookISBN(String isbn,String title, float price, String author,
-                          String publisher, String borrownum) {
+    public BookISBN(String isbn, String title, float price, String author, String publisher, String borrownum,
+                    String category, String cover_url, String summary) {
         this.isbn = isbn;
         this.title = title;
         this.price = price;
         this.author = author;
         this.publisher = publisher;
         this.borrownum = borrownum;
+        this.category = category;
+        this.cover_url = cover_url;
+        this.summary = summary;
     }
 }

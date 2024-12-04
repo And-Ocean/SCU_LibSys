@@ -21,8 +21,14 @@
               <el-form-item label="作者" :label-width="formLabelWidth">
                 <el-input v-model="sizeForm.author" autosize type="textarea"/>
               </el-form-item>
+              <el-form-item label="类别" :label-width="formLabelWidth">
+                <el-input v-model="sizeForm.category" autosize type="textarea"/>
+              </el-form-item>
               <el-form-item label="出版社" :label-width="formLabelWidth">
                 <el-input v-model="sizeForm.publisher" autosize type="textarea"/>
+              </el-form-item>
+              <el-form-item label="简介" :label-width="formLabelWidth">
+                <el-input v-model="sizeForm.summary" autosize type="textarea"/>
               </el-form-item>
               <el-form-item label="数量" :label-width="formLabelWidth">
                 <el-input v-model="sizeForm.number" autosize type="textarea"/>
@@ -65,6 +71,9 @@ export default defineComponent({
       author: '',
       publisher: [],
       number: '',
+      category: '',
+      cover_url: 'https://www.helloimg.com/i/2024/12/03/674f0923be1c1.jpg',
+      summary: ''
     })
 
 
@@ -84,6 +93,10 @@ export default defineComponent({
             price: sizeForm.price,
             author: sizeForm.author,
             publisher: sizeForm.publisher,
+            borrownum : sizeForm.number,
+            category: sizeForm.category,
+            cover_url: sizeForm.cover_url,
+            summary: sizeForm.summary,
           }
           try {
             Service.addBookIsbn(record).then((res) => {
@@ -107,6 +120,9 @@ export default defineComponent({
           sizeForm.author = ''
           sizeForm.publisher = []
           sizeForm.number = ''
+          sizeForm.category = ''
+          sizeForm.cover_url = ''
+          sizeForm.summary = ''
           return true
         }
         console.log('submit error')

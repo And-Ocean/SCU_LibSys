@@ -20,9 +20,12 @@ public class BookInfoDTO {
     private String author;
     private String publisher;
     private String borrownum;
+    private String category;
+    private String cover_url;
+    private String summary;
 
-    public BookInfoDTO(int id, String isbn, String status, String place, String title,
-                       float price, String author, String publisher, String borrownum) {
+    public BookInfoDTO(int id, String isbn, String status, String place, String title, float price, String author,
+                       String publisher, String borrownum, String category, String cover_url, String summary) {
         this.id = id;
         this.isbn = isbn;
         this.status = status;
@@ -32,5 +35,8 @@ public class BookInfoDTO {
         this.author = author;
         this.publisher = publisher;
         this.borrownum = borrownum;
+        this.category = category;
+        this.cover_url = cover_url;
+        this.summary = summary;
     }
 }

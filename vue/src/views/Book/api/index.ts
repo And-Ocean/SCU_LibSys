@@ -39,7 +39,9 @@ class Service {
       price: record.price ,
       author: record.author ,
       publisher: record.pulisher ,
-      borrownum: record.borrownum
+      borrownum: record.borrownum,
+      cover_url: record.cover_url,
+      summary: record.summary,
     }
     return request({
       url: bookApi.localHost + bookApi.modifyBookIsbn,
