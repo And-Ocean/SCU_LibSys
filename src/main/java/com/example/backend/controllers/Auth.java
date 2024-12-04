@@ -143,9 +143,8 @@ public class Auth {
                 if (role.equals("admin")) {//为管理员
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/dashboard", "/guide", "/dragable", "/copy", "/role",
-                            "/menu", "/projectboard", "/table", "/overdueManagement","/Book","/BorrowBook", "/leaveApproval", "/form",
-                            "/cropper", "/personal");
+                            "/role", "/overdueManagement","/Book","/BorrowBook",
+                            "/personal");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
@@ -157,7 +156,7 @@ public class Auth {
                 } else {
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/dashboard", "/userInfoByUsername", "/menu", "/personal","/dragable","/Book");
+                            "/userInfoByUsername", "/personal", "/Book", "/BorrowBook", "/overdueManagement");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,

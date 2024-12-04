@@ -13,6 +13,10 @@ public class OverdueRecordDTO {
     private String author;
     private String url;
 
+//    private String cover_url;
+//    private String summary;
+//    private String category;
+
     // Getter 和 Setter 方法
 
     public int getLend_id() {

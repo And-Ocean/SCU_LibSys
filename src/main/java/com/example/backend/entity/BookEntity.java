@@ -20,4 +20,6 @@ public class BookEntity {
         this.status = status;
         this.place = place;
     }
+
+
 }
