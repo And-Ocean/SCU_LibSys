@@ -113,16 +113,20 @@ export default defineComponent({
         if (res && res.data) {
           state.tableData = [];
           const data = res.data[0];
+          const currentDate = new Date();  // 获取当前日期
           for (let i = 0; i < data.length; i++) {
-            const record: Record = {
-              book_id: data[i].book_id,
-              title: data[i].title,
-              isbn: data[i].isbn,
-              lend_time: data[i].lend_time,
-              return_time: data[i].return_time,
-              returned: data[i].returned
-            };
-            state.tableData.push(record);
+            const returnDate = new Date(data[i].return_time);
+            if (currentDate > returnDate) {  // 只保留逾期记录
+              const record: Record = {
+                book_id: data[i].book_id,
+                title: data[i].title,
+                isbn: data[i].isbn,
+                lend_time: data[i].lend_time,
+                return_time: data[i].return_time,
+                returned: data[i].returned
+              };
+              state.tableData.push(record);
+            }
           }
           state.total = state.tableData.length;
         } else {
@@ -139,6 +143,7 @@ export default defineComponent({
         }
       }
     };
+
 
     const viewDetail = (row: Record) => {
       router.push({ path: `/overdueDetail/${row.book_id}` });
