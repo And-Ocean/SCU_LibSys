@@ -98,8 +98,11 @@ public class Auth {
                 if(userInfo.getRole()==1) {
                     userInfoResponseData.setRoleName("admin");
                 }
-                else{
+                else if(userInfo.getRole()==0){
                     userInfoResponseData.setRoleName("student");
+                }
+                else{
+                    userInfoResponseData.setRoleName("blocked");
                 }
                 userInfoResponseData.setUserEmail(userInfo.getEmail());
                 userInfoResponseData.setUserName(userInfo.getUsername());
@@ -154,10 +157,23 @@ public class Auth {
                             data
                     );
                     return ResponseEntity.status(HttpStatus.OK).body(response);
-                } else {
+                } else if(role.equals("student")){
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
                             "/userInfoByUsername", "/personal", "/Book", "/BorrowBook", "/overdueManagement");
+                    data.setAuthedRoutes(authedRoutes);
+                    AuthedRoutesResponse response = new AuthedRoutesResponse(
+                            0,
+                            "获取身份信息成功",
+                            true,
+                            data
+                    );
+                    return ResponseEntity.status(HttpStatus.OK).body(response);
+                }
+                else{
+                    AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
+                    List<String> authedRoutes = Arrays.asList(
+                            "/userInfoByUsername", "/personal", "/Book", "/overdueManagement");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,

@@ -120,10 +120,11 @@ public class Admin {
             String userSex = request.getUserSex();
             String userPhone = request.getUserPhone();
             String userAddress = request.getUserAddress();
+            int userRole = request.getUserRole();
             int adminId = accessService.getAuthenticatedId(accessToken);
             int role = userService.userInfoByUserid(adminId).getRole();
             if(role==1) {
-                boolean isSuccess = userService.adminUserUpdate(userName, nickName, userSex, userPhone, userAddress);
+                boolean isSuccess = userService.adminUserUpdate(userName, nickName, userSex, userPhone, userAddress,userRole);
                 adminUserInfoResponse response;
                 if(isSuccess){
                     response = new adminUserInfoResponse(

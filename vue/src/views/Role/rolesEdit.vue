@@ -18,6 +18,11 @@
       <el-form-item label="地址">
         <el-input v-model="form.userAddress" :value="row.userAddress">{{row.userAddress}}</el-input>
       </el-form-item>
+      <el-form-item label="角色">
+        <el-select v-model="form.userRole" placeholder="请选择角色">
+          <el-option v-for="role in roles" :key="role.value" :label="role.label" :value="role.value"></el-option>
+        </el-select>
+      </el-form-item>
       <el-row class="btn-container">
         <el-button size="mini" type="primary" @click="saveData()"> <i class="fa fa-plus"> </i> 修改 </el-button>
       </el-row>
@@ -39,6 +44,7 @@ interface stateTypes {
     nickName: string
     userPhone: string
     userAddress: string
+    userRole: number
   }
 }
 export default defineComponent({
@@ -66,7 +72,8 @@ export default defineComponent({
         userName: '',
         nickName: '',
         userPhone: '',
-        userAddress: ''
+        userAddress: '',
+        userRole: 0
       }
     })
     const rules = {
@@ -90,6 +97,11 @@ export default defineComponent({
       { value: '男', label: '男' },
       { value: '女', label: '女' }
     ]
+    const roles = [
+      { value: 0, label: '学生' },
+      { value: 1, label: '管理员' },
+      { value: 2, label: '限制' }
+    ]
     const row = computed(() => currentRow.value)
     // 可访问
     const routes = computed(() => store.state.permissionModule.routes)
@@ -103,6 +115,7 @@ export default defineComponent({
         state.form.nickName = row.value.nickName
         state.form.userPhone = row.value.userPhone
         state.form.userAddress = row.value.userAddress
+        state.form.userRole = row.value.userRole
       }
     })
     /**
@@ -115,6 +128,7 @@ export default defineComponent({
         userSex: state.form.userSex,
         userPhone: state.form.userPhone,
         userAddress: state.form.userAddress,
+        userRole: state.form.userRole,
         accessToken: sessionStorage.getItem('accessToken')
       }
       Service.postAdminUpdateUserInfo(data).then(res => {
@@ -126,6 +140,7 @@ export default defineComponent({
       ...toRefs(state),
       rules,
       sexs,
+      roles,
       lang,
       row,
       saveData

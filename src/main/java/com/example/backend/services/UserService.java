@@ -173,9 +173,9 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         String passwordBCrypt = encoder.encode(password);
         return userMapper.adminInsertUser(username,nickname,sex,phone,address,passwordBCrypt,0)>0;
     }
-    public boolean adminUserUpdate(String userName,String nickName,String userSex,String userPhone,String userAddress){
+    public boolean adminUserUpdate(String userName,String nickName,String userSex,String userPhone,String userAddress,int userRole){
         int id = userMapper.findByUserName(userName).getId();
-        return userMapper.adminUpdateUserInfo(userName,nickName,userSex,userPhone,userAddress,id)>0;
+        return userMapper.adminUpdateUserInfo(userName,nickName,userSex,userPhone,userAddress,userRole,id)>0;
     }
     public boolean adminUserDelete(String userName){
         int id = userMapper.findByUserName(userName).getId();

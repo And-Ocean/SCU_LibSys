@@ -24,7 +24,6 @@
         <el-table-column prop="userPhone" label="电话号码" align="center"></el-table-column>
         <el-table-column prop="userAddress" label="个人住址" align="center"></el-table-column>
 
-
         <el-table-column label="操作" align="center">
           <template #default="scope">
             <el-tooltip class="item" effect="dark" content="信息修改" placement="bottom">
@@ -37,6 +36,22 @@
                 <el-icon><minus /></el-icon>
               </el-button>
             </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column
+            prop="userRole"
+            label="账号状态"
+            width="100"
+            :filters="[
+            { text: '学生', value: 0 },
+            { text: '管理员', value: 1 },
+            { text: '限制', value: 2 },
+          ]"
+            :filter-method="filterStatus"
+            filter-placement="bottom-end"
+        >
+          <template #default="scope">
+            <el-tag :type="scope.row.userRole === 2 ? 'primary' : 'success'" disable-transitions>{{ scope.row.userRole }}</el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -106,13 +121,15 @@ export default defineComponent({
           nickName:'',
           userSex: '',
           userPhone:'',
-          userAddress:''
+          userAddress:'',
+          userRole: 0
         }
       },
       searchKeyword: '' // 添加 searchKeyword 变量
     })
     // 动态计算total;
     const total = computed(() => state.data.length)
+    const filterStatus = (value: any, row: { userRole: any }) => row.userRole === value
     /**
      * @description 请求接口获取当前设置角色，默认始终有超级管理员角色
      */
@@ -157,6 +174,7 @@ export default defineComponent({
       state.posted.userRow.userSex = row.userSex
       state.posted.userRow.userPhone = row.userPhone
       state.posted.userRow.userAddress = row.userAddress
+      state.posted.userRow.userRole = row.userRole
       state.edit_visible = true
     }
     const onDelete = (index: any, row: any) => {
@@ -218,6 +236,7 @@ export default defineComponent({
       onEdit,
       onDelete,
       onSearch,
+      filterStatus,
       fetchData
     }
   }

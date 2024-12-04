@@ -12,4 +12,5 @@ public class adminUserInfoRequest {
     private String userSex;
     private String userAddress;
     private String nickName;
+    private int userRole;
 }

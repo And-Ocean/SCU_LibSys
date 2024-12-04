@@ -70,6 +70,7 @@ export default defineComponent({
             userSex: state.form.userSex,
             userPhone: state.form.userPhone,
             userAddress: state.form.userAddress,
+
             accessToken: sessionStorage.getItem('accessToken')
           }
           Service.postAdminAddUser(data).then(res => {
