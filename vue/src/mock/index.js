@@ -1,6 +1,7 @@
 /**
  * @description register mock data right here
  */
+/**
 import Mock from 'mockjs'
 // 设置拦截请求的响应时间 ajax 请求；
 Mock.setup({
@@ -198,8 +199,9 @@ Mock.mock('/api/setting/basicInfo', 'post', (option) => {
     message: '更新成功'
   }
 })
-*/
 
+ */
+/**
 Mock.mock('/api/personal/tags', 'get', () => ({
   status: 0,
   data: {
@@ -384,3 +386,4 @@ const getProjectInfo = {
 // 获取项目详情
 // eslint-disable-next-line no-useless-concat
 Mock.mock(RegExp('/api/project/list' + '.*'), 'get', getProjectInfo)
+*/

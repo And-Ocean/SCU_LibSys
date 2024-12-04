@@ -13,6 +13,7 @@ const role = localStorage.getItem('role') || ''
 const address = localStorage.getItem('department') || ''
 const sex = localStorage.getItem('sex') || ''
 const phone = localStorage.getItem('phone') || ''
+const avatar = localStorage.getItem('avatar') || ''
 // create a new Store Modules.
 const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
   namespaced: true,
@@ -24,6 +25,7 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     address,//用户地址
     sex,//用户性别
     phone,// 用户手机号
+    avatar,//用户头像
     //暂时不用permissions: [],
     accessRoutes: constantRoutes, // 可访问路由集合
     routes: constantRoutes, // 所有路由集合
@@ -57,6 +59,10 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     setPhone: (state: permissionStateTypes, { userPhone }) => {
       state.phone = userPhone
       console.log(state.phone)
+    },
+    setAvatar: (state: permissionStateTypes, { userAvatar }) => {
+      state.avatar = userAvatar
+      console.log(state.avatar)
     },
     setAccessRoutes: (state: permissionStateTypes, routes) => {
       state.accessRoutes = constantRoutes.concat(routes)
@@ -173,6 +179,10 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
         localStorage.setItem('address', payload.userAddress);
         commit('setAddress', payload);
       }
+      if ('userAvatar' in payload) {
+        localStorage.setItem('avatar', payload.userAvatar);
+        commit('setAvatar', payload);
+      }
     }
 
   },
@@ -203,6 +213,9 @@ const permissionModule: Module<permissionStateTypes, RootStateTypes> = {
     },
     getPhone(state: permissionStateTypes) {
       return state.phone
+    },
+    getAvatar(state: permissionStateTypes) {
+      return state.avatar
     },
     /**
     getPermission(state: permissionStateTypes) {

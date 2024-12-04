@@ -8,6 +8,7 @@ export default interface permissionStateTypes {
   address: String
   sex: String
   phone: String
+  avatar: String
   //permissions: String[]
   accessRoutes: Array<RouteRecordRaw>
   routes: Array<RouteRecordRaw>

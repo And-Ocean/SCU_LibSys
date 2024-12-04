@@ -107,6 +107,7 @@ public class Auth {
                 userInfoResponseData.setUserSex(userInfo.getSex());
                 userInfoResponseData.setUserPhone(userInfo.getPhone());
                 userInfoResponseData.setUserAddress(userInfo.getAddress());
+                userInfoResponseData.setUserAvatar(userInfo.getAvatar());
                 userInfoResponse response = new userInfoResponse(
                         0,
                         "获取用户信息成功",

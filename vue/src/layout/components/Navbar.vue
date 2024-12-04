@@ -1,4 +1,5 @@
 <template>
+  <meta name="referrer" content="no-referrer">
   <div class="navbar">
     <el-header height="50px">
       <hamburger id="Hamburger" :is-active="opened" class="hamburger-container" @toggleClick="toggleSideBar" />
@@ -36,7 +37,7 @@
         </div>
         <el-dropdown class="avatar-container" trigger="hover">
           <div class="avatar-wrapper">
-            <el-avatar :src="avatar"></el-avatar>
+            <el-avatar :src="getAvatarUrl(avatar)"></el-avatar>
             <div class="nickname">{{ nickname }}</div>
           </div>
           <template #dropdown>
@@ -98,8 +99,20 @@ export default defineComponent({
     const messageNum = computed(() => store.getters['messageModule/getMessageNum'])
     const lang = computed((): string => store.getters['settingsModule/getLangState'])
     const nickname = computed(() => JSON.parse(localStorage.getItem('userInfo') as string)?.userName ?? '极客恰恰')
-
+    const avatar = computed(() => store.state.permissionModule.avatar)
     // methods
+    const getAvatarUrl = (avatar: string) => {
+      if (typeof avatar === 'string' && avatar.trim().length > 0) {
+        // 简单的 URL 验证
+        try {
+          new URL(avatar);
+          return avatar;
+        } catch (e) {
+          console.error('Invalid avatar URL:', e);
+        }
+      }
+      return '../../assets/avatar-default.jpg';
+    }
     const toggleSideBar = () => {
       store.dispatch('appModule/toggleSideBar')
     }
@@ -123,6 +136,7 @@ export default defineComponent({
 
     return {
       messageNum,
+      getAvatarUrl,
       toShowFullScreen,
       toExitFullScreen,
       toFullScreen,

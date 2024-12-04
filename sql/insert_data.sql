@@ -3,10 +3,10 @@ delete from BookIsbn;
 delete from BookEntity;
 delete from Lends;
 
-INSERT INTO User (username, password, nickname, phone, sex, address, role) VALUES
+INSERT INTO User (username, password, nickname, phone, sex, address, role,avatar) VALUES
 ('2022141460001', '1234567890', '张三', '13911140607', '男', '西园七舍1单元', 0),
 ('2022141460301', 'LS78901', '李四', '15819132999', '女', '西园五舍3单元', 0),
-('admin1', '135790', '王五', '13205239080', '男', '光明苑', 1);
+('admin', '$2a$10$mawmUJ/O6g9TZhOF08iwjeP0VQd2cjKPAB4.ZP2EueU3JSAksX2bm', '管理员', '13205239080', '男', '光明苑', 1,"https://gitee.com/meloooooooo/PicgoRepo/raw/master/uploadimg/2024-12/1733293127957_899e0a0f-6fe7-4ce7-87bd-90cc60ebe42c.jpg");
 
 INSERT INTO BookIsbn (isbn, title, price, author, publisher, borrownum) VALUES
 ('9787020042494', '红楼梦', 88.00, '曹雪芹', '人民文学出版社', 0),
