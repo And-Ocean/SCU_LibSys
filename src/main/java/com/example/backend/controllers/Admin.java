@@ -84,12 +84,12 @@ public class Admin {
                 else{
                     response = new adminUserInfoResponse(
                             1,
-                            "添加用户失败",
+                            "添加用户失败(该学号已经被注册)",
                             false,
                             null
                     );
                 }
-                return ResponseEntity.status(HttpStatus.OK).body(response);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             else{
                 adminUserInfoResponse response = new adminUserInfoResponse(

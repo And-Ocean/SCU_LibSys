@@ -70,42 +70,6 @@ import { Edit, Minus, Plus, Refresh } from '@element-plus/icons-vue'
 import RoleEdit from './rolesEdit.vue'
 import RoleNew from './rolesNew.vue'
 import Service from './api/index'
-const useConfirmDelete = async (row: any) => {
-  return new Promise((resolve, reject) => {
-    ElMessageBox.confirm('此操作将删除该用户所有数据, 是否继续?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-        .then(async () => {
-          // 此处执行接口异步删除员工
-          const data = {
-            userName: row.userName,
-            accessToken: sessionStorage.getItem('accessToken')
-          };
-          const res = await Service.postAdminDeleteUser(data);
-          if (res.status === 0) {
-            ElMessage({
-              type: 'success',
-              message: '删除成功'
-            });
-          } else {
-            ElMessage({
-              type: 'error',
-              message: '删除失败'
-            });
-            reject();
-          }
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '已取消删除'
-          });
-          reject();
-        });
-  });
-};
 export default defineComponent({
   name: 'RoleManage',
   components: {
@@ -197,15 +161,49 @@ export default defineComponent({
     }
     const onDelete = (index: any, row: any) => {
       console.log(index, row)
-      useConfirmDelete(row).then(() => {
-        fetchData();
-      });
+      useConfirmDelete(row)
     }
     const onSearch = () => {
       state.param.page = 1; // 重置页码为第一页
       fetchData();
     };
-
+    const useConfirmDelete = async (row: any) => {
+      return new Promise((resolve, reject) => {
+        ElMessageBox.confirm('此操作将删除该用户所有数据, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+            .then(async () => {
+              // 此处执行接口异步删除员工
+              const data = {
+                userName: row.userName,
+                accessToken: sessionStorage.getItem('accessToken')
+              };
+              const res = await Service.postAdminDeleteUser(data);
+              if (res.status === 0) {
+                ElMessage({
+                  type: 'success',
+                  message: '删除成功'
+                });
+                fetchData();
+              } else {
+                ElMessage({
+                  type: 'error',
+                  message: '删除失败'
+                });
+                reject();
+              }
+            })
+            .catch(() => {
+              ElMessage({
+                type: 'info',
+                message: '已取消删除'
+              });
+              reject();
+            });
+      });
+    };
     //初始调用
     fetchData()
 
