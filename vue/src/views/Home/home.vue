@@ -4,13 +4,13 @@
       <el-col :span="24">
         <el-card shadow="hover" class="card">
           <div class="header-title">
-            <h4 class="text-muted">上周借书情况</h4>
+            <h4 class="text-muted">近七天借书情况</h4>
             <div class="dropdown"><MoreFilled /></div>
           </div>
           <div class="chart-bg padding-top-1 padding-bottom-1">
             <el-row>
               <el-col :md="24">
-                <p class="text-muted">上周借书总量</p>
+                <p class="text-muted">近七天借书总量</p>
                 <h2 class="font-nomal text-center">
                   <small class="text-primary dot bg-primary"></small>
                   <span>{{ totalAmount }}本</span>
@@ -64,10 +64,9 @@ interface stateTypes {
   }
 }
 
-const pickDate = ref('')
+
 const refProduct = ref<HTMLElement | undefined>()
 const refLineChart = ref<HTMLElement | undefined>()
-const refAverageSales = ref<HTMLElement | undefined>()
 const totalAmount = ref(0);
 
 // 更新 totalAmount 的方法
