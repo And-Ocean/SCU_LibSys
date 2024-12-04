@@ -164,6 +164,9 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
     }
     public boolean adminUserAdd(String username,String nickname,String sex,String phone,String address){
+        if(userMapper.findByUserName(username)!=null){
+            return false;
+        }
         String password = "123456";//初始密码
         int role = 0;//默认为一般用户
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
