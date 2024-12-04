@@ -8,6 +8,7 @@ CREATE TABLE User (
     phone VARCHAR(255),
     sex VARCHAR(255),
     address VARCHAR(255),
+    avatar VARCHAR(512),
     role INT NOT NULL        -- 0为读者1为管理员
 );
 

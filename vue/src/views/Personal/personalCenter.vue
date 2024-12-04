@@ -1,4 +1,5 @@
 <template>
+  <meta name="referrer" content="no-referrer">
   <div class="page-container">
     <div class="info">
       <el-divider content-position="left">个人中心</el-divider>
@@ -8,7 +9,7 @@
       <el-col :span="20" :offset="1">
         <el-card class="box-card">
           <div class="account-avatar">
-            <img src="../../assets/avatar-default.jpg" />
+            <img :src="getAvatarUrl(avatar)" alt="个人头像" />
             <div class="account-name">{{nickname}}</div>
           </div>
           <div class="account-detail">
@@ -60,7 +61,7 @@ import { defineComponent, reactive, toRefs, ref, onMounted, computed } from 'vue
 import { useStore } from '@/store'
 import Service from './api/index'
 import fullcalendar from './components/fullCalendar/index.vue'
-
+import defaultAvatar from '../../assets/avatar-default.jpg';
 interface stateType {
   dynamicTags: string[]
   inputVisible: boolean
@@ -73,12 +74,6 @@ export default defineComponent({
     fullcalendar
   },
   setup() {
-    const state = reactive<stateType>({
-      dynamicTags: ['default'],
-      inputVisible: false,
-      inputValue: '',
-      contentTip: '您可：1、拖放事件任务 2、调整事件任务的大小 3、点击事件任务删除 4、点击日期添加新的事件任务'
-    })
     const formLabelWidth = ref(100)
     const size = ref('medium')
     const showDesc = ref(true)
@@ -89,48 +84,28 @@ export default defineComponent({
     const sex = computed(() => store.state.permissionModule.sex)
     const phone = computed(() => store.state.permissionModule.phone)
     const address = computed(() => store.state.permissionModule.address)
+    const avatar = computed(() => store.state.permissionModule.avatar)
     // mothods
     /**
-     * @description 关闭tag标签
+     * @description 获取头像
      */
-    const handleClose = (tag: string) => {
-      state.dynamicTags.splice(state.dynamicTags.indexOf(tag), 1)
+    const getAvatarUrl = (avatar: string) => {
+      if (avatar) {
+        // 简单的 URL 验证
+        new URL(avatar)
+        return avatar
+      }
+      else{
+        return defaultAvatar;
+      }
     }
 
-    /**
-     * @description 获取当前tags
-     */
-    /**
-     * @description 获取角色
-     */
-    const getTagList = async () => {
-      try {
-        const res = await Service.getPersonTags()
-        state.dynamicTags = res.data.tags
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    const handleInputConfirm = () => {
-      const { inputValue } = state
-      if (inputValue) {
-        state.dynamicTags.push(inputValue)
-      }
-      state.inputVisible = false
-      state.inputValue = ''
-    }
-    const showInput = () => {
-      state.inputVisible = true
-    }
 
     onMounted(() => {
-      getTagList()
     })
     return {
       formLabelWidth,
-      showInput,
-      handleInputConfirm,
-      ...toRefs(state),
+      getAvatarUrl,
       size,
       username,
       nickname,
@@ -138,8 +113,8 @@ export default defineComponent({
       sex,
       phone,
       address,
-      showDesc,
-      handleClose
+      avatar,
+      showDesc
     }
   }
 })

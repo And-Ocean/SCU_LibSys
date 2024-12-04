@@ -16,8 +16,7 @@ public class User {
     private String password;
     private String phone;
     private int role;
-    //private String intro;
-    //private String department;
+    private String avatar;
 
     // Getters and Setters
     public int getId() {
@@ -94,6 +93,12 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }
 

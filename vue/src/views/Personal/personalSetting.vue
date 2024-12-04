@@ -1,4 +1,5 @@
 <template>
+  <meta name="referrer" content="no-referrer">
   <div class="PersonalSetting">
     <el-row>
       <el-col :offset="1" :span="22">
@@ -38,12 +39,12 @@
                   <div class="avatar">
                     <div class="preview">
                       <span>头像</span>
-                      <img src="../../assets/avatar-default.jpg" />
+                      <img :src="getAvatarUrl(avatar)" />
                     </div>
                     <el-upload
                       class="avatar-uploader"
-                      action="https://jsonplaceholder.typicode.com/posts/"
-                      :show-file-list="false"
+                      action="http://localhost:8080/api/upload/uploadAvatar"
+                      :data="additionalParams"
                       :on-success="handleAvatarSuccess"
                       :before-upload="beforeAvatarUpload"
                     >
@@ -108,7 +109,7 @@
 </template>
 <script lang="ts">
 import { ElMessage } from 'element-plus'
-import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
+import { computed,defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import Service from './api/index'
@@ -129,7 +130,7 @@ export default defineComponent({
     const store = useStore()
     const showEmailDialog = ref(false)
     const showPasswordDialog = ref(false)
-
+    var avatar = computed(() => store.state.permissionModule.avatar)
     const noticeSwitch = reactive({
       userSwitch: false,
       sysSwitch: true,
@@ -141,12 +142,19 @@ export default defineComponent({
       phone: '',
       accessToken: sessionStorage.getItem('accessToken')
     })
-
-
-
-    const imageUrl = ref()
     const updateLoading = ref(false)
-
+    const additionalParams = reactive({
+      'accessToken': `${settingForm.accessToken}` // 假设 accessToken 存储在 sessionStorage 中
+    });
+    const getAvatarUrl = (avatar: string) => {
+      if(avatar) {
+        new URL(avatar);
+        return avatar;
+      }
+      else {
+        return '../../assets/avatar-default.jpg';
+      }
+    }
     // eslint-disable-next-line no-unused-vars
     const validateMobile = (rule: any, value: string, callback: VoidNoop) => {
       if (value === '') {
@@ -201,8 +209,15 @@ export default defineComponent({
     const resetForm = () => {
       settingFormRef.value.resetFields()
     }
-    const handleAvatarSuccess = (res: any, file: { raw: any }) => {
-      imageUrl.value = URL.createObjectURL(file.raw)
+    const handleAvatarSuccess = async(res: any) => {
+      if (res.status === 0) {
+        ElMessage('上传头像成功')
+        // 更新头像URL到store或其他地方
+        console.log(res.data[0])
+        store.dispatch('permissionModule/getUserInfos', res.data[0])
+      } else {
+        ElMessage.error('上传头像失败: ' + res.message)
+      }
     }
     const beforeAvatarUpload = (file: { raw: any; type: string; size: number }) => {
       // const isJPG = file.type === 'image/jpeg'
@@ -244,6 +259,9 @@ export default defineComponent({
     }
 
     return {
+      avatar,
+      additionalParams,
+      getAvatarUrl,
       handleBack,
       handleClose,
       tabPosition,
@@ -259,7 +277,6 @@ export default defineComponent({
       handleSaveEmail,
       handleSavePassword,
       rules,
-      imageUrl,
       ...toRefs(noticeSwitch),
       updateLoading
     }

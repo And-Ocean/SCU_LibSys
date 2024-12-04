@@ -55,6 +55,7 @@ public class userInfoResponse {
         private String userSex;
         private String userPhone;
         private String userAddress;
+        private String userAvatar;
 
         public String getUserEmail() {
             return userEmail;
@@ -99,6 +100,8 @@ public class userInfoResponse {
         public void setRoleName(String roleName) {
             this.roleName = roleName;
         }
+        public String getUserAvatar() {return userAvatar;}
+        public void setUserAvatar(String userAvatar) {this.userAvatar = userAvatar;}
         public Data() {}
     }
 }
