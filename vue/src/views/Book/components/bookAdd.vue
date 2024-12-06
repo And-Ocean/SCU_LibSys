@@ -5,10 +5,10 @@
         <div class="grid-content bg-purple-dark">
           <el-card class="box-card">
             <div style="text-align: left">
-              <span>图书添加</span>
+              <span>新图书添加</span>
               <el-divider></el-divider>
             </div>
-            <el-form ref="activityForm" style="text-align: left" :model="sizeForm" label-width="80px" size="mini">
+            <el-form ref="isbnForm" style="text-align: left" :model="sizeForm" label-width="80px" size="mini">
               <el-form-item label="ISBN">
                 <el-input v-model="sizeForm.isbn"></el-input>
               </el-form-item>
@@ -22,7 +22,14 @@
                 <el-input v-model="sizeForm.author" autosize type="textarea"/>
               </el-form-item>
               <el-form-item label="类别" :label-width="formLabelWidth">
-                <el-input v-model="sizeForm.category" autosize type="textarea"/>
+                <el-select v-model="sizeForm.category" placeholder="Select" style="width: auto">
+                  <el-option
+                      v-for="item in state.bookCategory"
+                      :key="item.category"
+                      :label="item.category"
+                      :value="item.category"
+                  />
+                </el-select>
               </el-form-item>
               <el-form-item label="出版社" :label-width="formLabelWidth">
                 <el-input v-model="sizeForm.publisher" autosize type="textarea"/>
@@ -41,7 +48,8 @@
               </el-form-item>
             </el-form>
           </el-card>
-        </div></el-col
+        </div>
+      </el-col
       >
     </el-row>
   </div>
@@ -64,6 +72,10 @@ export default defineComponent({
   setup() {
     const router = useRouter()
 
+    const state = reactive({
+      bookCategory: []
+    })
+    
     const sizeForm = reactive({
       isbn: '',
       title: '',
@@ -77,15 +89,15 @@ export default defineComponent({
     })
 
 
-    const activityForm = ref()
+    const isbnForm = ref()
 
     onMounted(() => {
       // eslint-disable-next-line no-console
-      console.log('show sizeFormRef.value', activityForm.value)
+      getBookCategory()
     })
     // methods
     const submitForm = () => {
-      activityForm.value.validate((valid: any): boolean => {
+      isbnForm.value.validate((valid: any): boolean => {
         if (valid) {
           let record = {
             isbn: sizeForm.isbn,
@@ -129,8 +141,25 @@ export default defineComponent({
         return false
       })
     }
+    const getBookCategory = () => {
+      try {
+        Service.postGetBookCategory().then((res) => {
+          if (res) {
+            state.bookCategory = res.data;
+            console.log("category: "+JSON.stringify(state.bookCategory));
+          } else {
+            console.log('没有找到数据');
+          }
+        });
+      } catch (err) {
+        ElMessage({
+          type: 'warning',
+          message: err.message
+        });
+      }
+    }
     const resetForm = () => {
-      activityForm.value.resetFields()
+      isbnForm.value.resetFields()
     }
     const handleBack = () => {
       router.go(-1)
@@ -185,7 +214,8 @@ export default defineComponent({
       handleDelete,
       handleBack,
       sizeForm,
-      activityForm,
+      state,
+      isbnForm,
       submitForm,
       resetForm,
     }

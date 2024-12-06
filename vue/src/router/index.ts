@@ -486,6 +486,19 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
           icon: 'ic ic-stealth-fill',
           hidden: true,
         }
+      },
+      {
+        path: '/Book/bookEntityAdd',
+        name: 'bookEntityAdd',
+        component: () => import( '@/views/Book/components/bookEntityAdd.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '添加已有图书',
+            '/en-US': 'Add book entity'
+          },
+          icon: 'ic ic-stealth-fill',
+          hidden: true,
+        }
       }
     ]
   },

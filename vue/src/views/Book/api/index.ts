@@ -12,6 +12,7 @@ const bookApi = {
   deleteBookEntity: '/api/book/deleteBookEntity',
   borrowBook: '/api/bookBorrow/borrowBook',
   borrowABookById: '/api/bookBorrow/borrowABookById',
+  getBookCategory: '/api/BookCategory/getBookCategory'
 }
 
 
@@ -179,5 +180,18 @@ class Service {
     })
   }
 
+  static postGetBookCategory() {
+    return request({
+      url: bookApi.localHost + bookApi.getBookCategory,
+      method: 'POST',
+      json: true,
+    }).then((res) => {
+      if (res.status === 0) {
+        console.log("postGetBookCategory success")
+        return res
+      }
+      return null
+    })
+  }
 }
 export default Service

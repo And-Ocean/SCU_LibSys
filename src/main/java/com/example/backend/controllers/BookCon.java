@@ -1,7 +1,9 @@
 package com.example.backend.controllers;
 
+import com.example.backend.entity.BookEntity;
 import com.example.backend.entity.BookISBN;
 import com.example.backend.entity.ResponseBase;
+import com.example.backend.services.BookEntityService;
 import com.example.backend.services.BookIsbnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,5 +49,13 @@ public class BookCon {
         ResponseBase response = new ResponseBase();
         int res_code = book_service.deleteBookISBN(record);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Autowired
+    private BookEntityService book_entity_service;
+    @PostMapping("/addBookEntity")
+    public ResponseBase addBookEntity(@RequestBody BookEntity record){
+        int res_code = book_entity_service.insertBookEntity(record);
+        return new ResponseBase();
     }
 }

@@ -2,6 +2,7 @@ package com.example.backend.services;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.backend.entity.*;
+import com.example.backend.mapper.BookEntityMapper;
 import com.example.backend.mapper.BookIsbnMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,5 +38,4 @@ public class BookIsbnService extends ServiceImpl<BookIsbnMapper, BookISBN>{
         int res_code = bookIsbnMapper.deleteBookISBN(record.getIsbn());
         return res_code;
     }
-
 }

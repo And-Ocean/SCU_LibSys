@@ -27,7 +27,7 @@ public class BookEntityService extends  ServiceImpl<BookEntityMapper, BookEntity
 
     public int insertBookEntity(BookEntity record) {
         int res_code = bookEntityMapper.insertBookEntity(
-                record.getId(), record.getIsbn(), record.getStatus(), record.getPlace());
+                record.getIsbn(), record.getStatus(), record.getPlace());
         return res_code;
     }
 

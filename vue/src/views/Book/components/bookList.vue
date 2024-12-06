@@ -3,7 +3,9 @@
     <el-form :inline="true" :model="formInline" class="form-inline">
     </el-form>
 
-    <el-button v-if="isAdmin" type="primary" @click="onAddBookIsbn">添加图书</el-button>
+    <el-button v-if="isAdmin" type="primary" @click="onAddBookIsbn">添加新图书</el-button>
+    <el-button v-if="isAdmin" type="primary" @click="onAddBookEntity">添加已有图书</el-button>
+
 
     <el-table ref="filterTableRef" class="table-list" row-key="book_id"
               :data="paginatedData" stripe style="width: 100%">
@@ -160,7 +162,7 @@ export default defineComponent({
       form: {},
       isAdmin: false,  // 默认不是管理员
       total: 0, // 总记录数,
-
+      bookCategory: [],
       borrowFormVisible: false,
       borrowList: {},
     })
