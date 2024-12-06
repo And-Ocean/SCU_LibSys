@@ -430,7 +430,7 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
     redirect: '/BorrowBook/borrowed_list',
     meta: {
       title: {
-        '/zh-CN': '我的借书',
+        '/zh-CN': '借书列表',
         '/en-US': 'borrowed_list'
       },
       icon: 'ic ic-barrage-fill'
@@ -442,7 +442,7 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
         component: () => import('@/views/BorrowBook/components/tableList.vue'),
         meta: {
           title: {
-            '/zh-CN': '我的借书',
+            '/zh-CN': '借书列表',
             '/en-US': 'Todolist'
           },
           icon: 'ic ic-barrage-fill'
@@ -456,7 +456,7 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
     redirect: '/Book/bookList',
     meta: {
       title: {
-        '/zh-CN': '图书管理',
+        '/zh-CN': '图书列表',
         '/en-US': 'Book list'
       },
       icon: 'ic ic-barrage-fill'
@@ -468,7 +468,7 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
         component: () => import('@/views/Book/components/bookList.vue'),
         meta: {
           title: {
-            '/zh-CN': '图书管理',
+            '/zh-CN': '图书列表',
             '/en-US': 'Book list'
           },
           icon: 'ic ic-barrage-fill'
@@ -498,32 +498,6 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
           },
           icon: 'ic ic-stealth-fill',
           hidden: true,
-        }
-      }
-    ]
-  },
-  {
-    path: '/overdueManagement',
-    component: layout,
-    redirect: '/overdueManagement/overdueList',
-    meta: {
-      title: {
-        '/zh-CN': '逾期管理',
-        '/en-US': 'Overdue Management'
-      },
-      icon: 'ic ic-barrage-fill'
-    },
-    children: [
-      {
-        path: '/overdueManagement/overdueList',
-        name: 'overdueList',
-        component: () => import('@/views/OverdueManagement/components/OverdueList.vue'),
-        meta: {
-          title: {
-            '/zh-CN': '逾期列表',
-            '/en-US': 'Overdue List'
-          },
-          icon: 'ic ic-barrage-fill'
         }
       }
     ]

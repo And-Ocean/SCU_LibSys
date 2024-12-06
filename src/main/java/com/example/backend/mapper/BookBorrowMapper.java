@@ -3,6 +3,7 @@ package com.example.backend.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.backend.entity.BookEntity;
 import com.example.backend.entity.borrowBookDTO.BookBorrowedDTO;
+import com.example.backend.entity.borrowBookDTO.BookBorrowedWithUserInfoDTO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -21,6 +22,15 @@ public interface BookBorrowMapper extends BaseMapper<BookBorrowedDTO> {
             "(select l.id as lend_id, l.lend_time, l.return_time, l.returned, b.* from lends as l, bookentity as b " +
             "where l.book_id = b.id and l.user_id = #{user_id} and l.returned = 0) as t natural join bookisbn")
     List<BookBorrowedDTO> selectBookBorrowedDTO(int user_id);
+
+    @Select("select book_id, lend_time, return_time, returned, beul.isbn, title, price, author, publisher, " +
+            "lend_id, cover_url, summary, category, user_id, email, sex, username, phone, address from " +
+            "(select be.isbn, ul.* from " +
+            "(select u.id as user_id, email, sex, username, phone, address, l.id as lend_id, l.lend_time, l.return_time, l.returned, l.book_id " +
+            "from user as u, lends as l where u.id = l.user_id and l.returned = 0 ) as ul, bookentity as be " +
+            "where be.id = ul.book_id) as beul, bookisbn as i where beul.isbn = i.isbn")
+    List<BookBorrowedWithUserInfoDTO> getBookBorrowedAll();
+
 
     @Update("update lends set returned = 1 where id = #{lend_id}")
     void returnSetYesByLendId(int lend_id);

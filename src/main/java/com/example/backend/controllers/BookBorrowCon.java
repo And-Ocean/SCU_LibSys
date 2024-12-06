@@ -2,8 +2,7 @@ package com.example.backend.controllers;
 
 import com.example.backend.entity.BookEntity;
 import com.example.backend.entity.ResponseBase;
-import com.example.backend.entity.borrowBookDTO.IdWithTk;
-import com.example.backend.entity.borrowBookDTO.IsbnWithTk;
+import com.example.backend.entity.borrowBookDTO.*;
 import com.example.backend.entity.userInfo.adminUserInfoRequest;
 import com.example.backend.services.AccessService;
 import com.example.backend.services.BookBorrowService;
@@ -12,10 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.backend.entity.borrowBookDTO.BookBorrowedDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/bookBorrow")
@@ -49,15 +48,17 @@ public class BookBorrowCon {
     }
 
     @PostMapping("/return_by_lend_id")
-    public ResponseBase returnBookByLendId(@RequestBody BookBorrowedDTO bookBorrowedDTO) {
-        int lend_id = bookBorrowedDTO.getLend_id();
+    public ResponseBase returnBookByLendId(@RequestBody ResponseBase request) {
+        System.out.println("return_by_lend_id exec");
+        ArrayList<Object> data = request.getData();
         ResponseBase response = new ResponseBase();
+        int lend_id = (Integer) data.get(0);
         if (lend_id <= 0) {
             response.setStatus(-1);
             response.setMessage("Something went wrong with lend_id, it does not exist");
             return response;
         }
-        String isbn = bookBorrowedDTO.getIsbn();
+        String isbn = data.get(1).toString();
         bookBorrowService.returnByLendId(lend_id, isbn);
         return response;
     }
@@ -81,6 +82,25 @@ public class BookBorrowCon {
         catch (Exception e) {
             response.setStatus(-1);
             response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    @PostMapping("/get_all_records")
+    public ResponseBase getBorrowedBookAll() {
+        ResponseBase response = new ResponseBase();
+        try {
+            List<BorrowRecordsAdmin> result_set = bookBorrowService.getBorrowAllRecords();
+            if (result_set != null) {
+                response.pushData(result_set);
+            } else {
+                throw new Exception();
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.setStatus(-1);
+//            response.setMessage(e.getMessage());
         }
         return response;
     }

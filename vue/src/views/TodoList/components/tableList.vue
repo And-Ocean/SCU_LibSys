@@ -18,7 +18,7 @@
       <el-table-column prop="content" label="待办事项内容" truncated> </el-table-column>
       <el-table-column align="right">
         <template #header>
-          <el-input v-model="search" size="mini" placeholder="输入標題字段关键字搜索" />
+          <el-input v-model="search" size="mini" placeholder="按标题快速搜索" />
         </template>
         <template #default="scope">
           <el-button size="mini" @click="modifyPop(scope.row)">修改</el-button>

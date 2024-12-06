@@ -2,11 +2,14 @@ package com.example.backend.services;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.backend.entity.BookEntity;
+import com.example.backend.entity.borrowBookDTO.BookBorrowedWithUserInfoDTO;
+import com.example.backend.entity.borrowBookDTO.BorrowRecordsAdmin;
 import com.example.backend.mapper.BookBorrowMapper;
 import com.example.backend.entity.borrowBookDTO.BookBorrowedDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,6 +23,25 @@ public class BookBorrowService extends ServiceImpl<BookBorrowMapper, BookBorrowe
 
     public List<BookBorrowedDTO> getBookBorrowedList(int user_id) {
         return bookBorrowMapper.selectBookBorrowedDTO(user_id);
+    }
+
+
+    public List<BorrowRecordsAdmin> getBorrowAllRecords() {
+        List<BookBorrowedWithUserInfoDTO> records =  bookBorrowMapper.getBookBorrowedAll();
+        List<BorrowRecordsAdmin> res = new ArrayList<>();
+
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        for (BookBorrowedWithUserInfoDTO record : records) {
+            LocalDate due_dt = LocalDateTime.parse(record.getReturn_time().trim(), formatter).toLocalDate();
+            if (due_dt.isBefore(today)) {
+                res.add(new BorrowRecordsAdmin(record, 1));
+            } else {
+                res.add(new BorrowRecordsAdmin(record, 0));
+            }
+        }
+        return res;
     }
 
     public int returnByLendId(int lend_id, String isbn) {
@@ -45,8 +67,8 @@ public class BookBorrowService extends ServiceImpl<BookBorrowMapper, BookBorrowe
         String formattedNow = now.format(formatter);
         LocalDateTime plus15Days = now.plusDays(15);
         String formattedPlus15Days = plus15Days.format(formatter);
-        System.out.println(formattedNow);
-        System.out.println(formattedPlus15Days);
+//        System.out.println(formattedNow);
+//        System.out.println(formattedPlus15Days);
         bookBorrowMapper.createBoRelation(user_id, book_id, formattedNow, formattedPlus15Days);
     }
 }

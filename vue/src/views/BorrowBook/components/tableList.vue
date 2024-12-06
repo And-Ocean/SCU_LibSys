@@ -2,28 +2,46 @@
   <div class="table-container">
     <el-form :inline="true" :model="formInline" class="form-inline">
     </el-form>
-    <el-table ref="filterTableRef" class="table-list" row-key="book_id" :data="tableData.filter((data) => !search || data.title.toLowerCase().includes(search.toLowerCase()))" style="width: 100%">
+    <el-table ref="filterTableRef" class="table-list" row-key="book_id" :data="paginatedData" style="width: 100%">
       <el-table-column  width="10" ></el-table-column>
+      <el-table-column
+          v-if="isAdmin"
+          prop="overdue"
+          label="状态"
+          width="100"
+          :filters="[
+          { text: '逾期', value: '1' },
+          { text: '正常', value: '0' }
+        ]"
+          :filter-method="filterStatus"
+          filter-placement="bottom-end"
+      >
+        <template #default="scope">
+          <el-tag :type="scope.row.overdue === '1' ? 'danger' : 'success'" disable-transitions>{{ scope.row.overdue ? "逾期": "正常" }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="title" label="书名" truncated> </el-table-column>
       <el-table-column prop="isbn" label="ISBN" truncated> </el-table-column>
       <el-table-column
           prop="return_time"
-          label="还书日期"
+          label="应还日期"
           sortable
           column-key="return_time"
       >
       </el-table-column>
-      <el-table-column prop="author" label="作者" width="100"> </el-table-column>
-      <el-table-column prop="publisher" label="出版社"> </el-table-column>
+      <el-table-column v-if="!isAdmin" prop="author" label="作者" width="100"> </el-table-column>
+      <el-table-column v-if="!isAdmin" prop="publisher" label="出版社"> </el-table-column>
+      <el-table-column v-if="isAdmin" prop="username" label="借书用户名" width="100"> </el-table-column>
+      <el-table-column v-if="isAdmin" prop="email" label="Email"> </el-table-column>
       <el-table-column align="right">
         <template #header>
-          <el-input v-model="search" size="mini" placeholder="输入书名关键字搜索" />
+          <el-input v-model="search" size="mini" placeholder="输入用户名搜索" @input="watchSearch"/>
         </template>
         <template #default="scope">
           <el-button size="mini" @click="detailPop(scope.row)">书籍详情</el-button>
         </template>
       </el-table-column>
-      <el-table-column width="120">
+      <el-table-column v-if="isAdmin" width="120">
         <template #default="scope">
           <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定已经还书吗？" @confirm="handleReturnBook(scope.$index, scope.row)">
             <template #reference>
@@ -52,6 +70,25 @@
             />
           </div>
         </el-form-item>
+        <el-form-item v-if="isAdmin" label="用户ID&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.user_id }}
+        </el-form-item>
+        <el-form-item v-if="isAdmin" label="借书用户名&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.username }}
+        </el-form-item>
+        <el-form-item v-if="isAdmin" label="性别&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.sex }}
+        </el-form-item>
+        <el-form-item v-if="isAdmin" label="电话&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.phone }}
+        </el-form-item>
+        <el-form-item v-if="isAdmin" label="Email&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.email }}
+        </el-form-item>
+        <el-form-item v-if="isAdmin" label="住址&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.address }}
+        </el-form-item>
+
         <el-form-item label="简介&nbsp;&nbsp;" :label-width="formLabelWidth">
           {{ form.summary }}
         </el-form-item>
@@ -83,21 +120,20 @@
     </el-dialog>
 
     <el-pagination
-      :hide-on-single-page="true"
-      :current-page="currentPage"
-      :page-sizes="[5, 10, 15, 20, 25]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20, 25]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="record_cnt"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
     >
     </el-pagination>
 
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import permission from '@/directive/permission'
 import Service from '../api/index'
@@ -128,6 +164,9 @@ export default defineComponent({
       modifyFormVisible: false,
       detailFormVisible: false,
       form: {},
+      isAdmin: false,  // 默认不是管理员
+      paginatedData: [],
+      record_cnt: 0,
     })
     const formInline = reactive({
       user: '',
@@ -139,13 +178,83 @@ export default defineComponent({
 
     onMounted(() => {
       // eslint-disable-next-line no-console
-      getBookBorrowed()
+      getUserRole()
+      const pageSizeTmp = sessionStorage.getItem("BOOK_BORROW_PAGE_SIZE");
+      if (!pageSizeTmp) {
+        sessionStorage.setItem("BOOK_BORROW_PAGE_SIZE", 5);
+        state.pageSize = 5;
+      } else {
+        // ####parseInt#### is IMPORTANT!!!!
+        state.pageSize = parseInt(pageSizeTmp, 10);
+      }
+      getList()
+
     })
+
+    // 更新分页数据
+    const updatePaginatedData = () => {
+      // 过滤包含搜索关键字的书籍
+      let recordsToFilter = state.tableData;
+
+      // 如果有搜索关键词，按书名进行过滤
+      if (state.search) {
+        recordsToFilter = recordsToFilter.filter((record) =>
+            record.username.toLowerCase().includes(state.search.toLowerCase()) // 忽略大小写
+        );
+      }
+      // 更新分页数据
+      // console.log(state.pageSize)
+      const start = (state.currentPage - 1) * state.pageSize;
+      const end = state.currentPage * state.pageSize;
+      state.paginatedData = recordsToFilter.slice(start, end);  // 根据当前页和页大小提取分页数据
+      state.record_cnt = recordsToFilter.length;  // 更新总记录数
+    };
+
+    const watchSearch = () => {
+      updatePaginatedData();  // 过滤数据并更新分页
+    };
+    watch(() => state.search, watchSearch);
+
+    const getList = () => {
+      if (!state.isAdmin) {
+        getBookBorrowed()
+      } else {
+        getAllBorrowRecords()
+      }
+    }
 
     // methods
     const resetDateFilter = () => {
       filterTableRef.value.clearFilter('date')
     }
+
+    const getAllBorrowRecords = async() => {
+
+      try {
+        await Service.postGetBorrowedBook().then((res) => {
+          if (!res) {
+            console.log("no getAllBorrowRecords records ")
+          } else {
+            state.tableData = []
+            state.tableData = res.data[0]
+            console.log(state.tableData)
+            updatePaginatedData()
+          }
+        });
+      } catch (err) {
+        ElMessage({
+          type: 'warning',
+          message: err.message
+        })
+      }
+    }
+
+
+
+    const getUserRole = () => {
+      state.isAdmin = localStorage.getItem('role') === 'admin';
+    }
+
 
     const getBookBorrowed = async() => {
       console.log("getBookBorrowed exc")
@@ -161,7 +270,8 @@ export default defineComponent({
             // console.log('getBookBorrowed get')
             // console.log(res)
             state.tableData = res.data[0]
-            console.log(state.tableData)
+            // console.log(state.tableData)
+            updatePaginatedData()
           }
         });
       } catch (err) {
@@ -197,14 +307,15 @@ export default defineComponent({
 
     const handleSizeChange = (val: any) => {
       // eslint-disable-next-line no-console
-      console.log(`每页 ${val} 条`)
       state.pageSize = val
+      sessionStorage.setItem("BOOK_BORROW_PAGE_SIZE", val)
+      updatePaginatedData();  // 更新分页数据
       // request api to change tableData
     }
 
     const handleReturnBook = (index: any, row: any) => {
       // eslint-disable-next-line no-console
-      // console.log(index, row)
+      console.log(index, row)
       try {
         Service.returnBook(row).then((res) => {
           if (res) {
@@ -219,30 +330,12 @@ export default defineComponent({
         })
       }
       state.tableData.splice(index, 1)
+      updatePaginatedData()
     }
 
-     // 分页数据处理
-     // @param data [Array] 需要分页的数据
-     //  @param num [Number] 当前第几页
-     //  @param size [Number] 每页显示多少条
-    // const getList = (data, num, size) => {
-    //   let list, start, end
-    //   start = (num - 1) * size
-    //   end = start + size
-    //   list = data.filter((item, index) => {
-    //     return index >= start && index < end
-    //   })
-    //   list.forEach((item, index) => {
-    //     item.seq = index + start
-    //   })
-    //   return list
-    // }
-
     const handleCurrentChange = (val: any) => {
-      // eslint-disable-next-line no-console
-      console.log(`当前页: ${val}`)
       state.currentPage = val
-      // request api to change tableData
+      updatePaginatedData();  // 更新分页数据
     }
 
     return {
@@ -261,6 +354,11 @@ export default defineComponent({
       modifyPop,
       detailPop,
       handleReturnBook,
+      getUserRole,
+      getList,
+      getAllBorrowRecords,
+      watchSearch,
+      updatePaginatedData
     }
   }
 })
