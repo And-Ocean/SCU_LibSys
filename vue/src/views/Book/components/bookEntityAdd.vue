@@ -10,12 +10,18 @@
             </div>
             <el-form ref="isbnForm" style="text-align: left" :model="sizeForm" label-width="80px" size="mini">
               <el-form-item label="ISBN">
-                <el-input v-model="sizeForm.isbn"></el-input>
+                <el-autocomplete
+                    v-model="sizeForm.isbn"
+                    :fetch-suggestions="querySearch"
+                    clearable
+                    placeholder="请输入 ISBN"
+                    class="inline-input w-50"
+                    @select="handleSelect"
+                />
               </el-form-item>
               <el-form-item label="位置" :label-width="formLabelWidth">
                 <el-input v-model="sizeForm.place" autosize type="textarea"/>
               </el-form-item>
-
 
               <el-form-item size="large">
                 <el-button type="primary" @click="submitForm">确认添加</el-button>
@@ -24,47 +30,72 @@
             </el-form>
           </el-card>
         </div>
-      </el-col
-      >
+      </el-col>
     </el-row>
   </div>
 </template>
+
 <script lang="ts">
-import {computed, defineComponent, onMounted, reactive, ref} from 'vue'
-import { useRouter } from 'vue-router'
+import { defineComponent, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Edit, DeleteFilled, Check, ArrowLeft } from '@element-plus/icons-vue'
 import Service from "@/views/Book/api";
 
 export default defineComponent({
   name: 'AdvanceForm',
-  components: {
-    Edit,
-    DeleteFilled,
-    Check,
-    ArrowLeft
-  },
   setup() {
-    const router = useRouter()
-
     const sizeForm = reactive({
       isbn: '',
       status: 1,
       place: '',
     })
 
-    const state = reactive({
-      bookCategory: []
-    })
-
-
     const isbnForm = ref()
 
-    onMounted(() => {
-      // eslint-disable-next-line no-console
-      console.log('show sizeFormRef.value', isbnForm.value)
-    })
-    // methods
+    const availableISBNs = ref<string[]>([])
+
+    const fetchISBNs = async () => {
+      try {
+        const res = await Service.postGetBookIsbn()
+        // console.log("isbn original: " + JSON.stringify(res))
+        if (res && res.data) {
+          availableISBNs.value = res.data.map((item: any) => item.isbn).filter(isbn => isbn !== '')
+          // console.log("isbn:", JSON.stringify(availableISBNs.value))
+        }
+      } catch (error) {
+        console.error('获取ISBN失败', error)
+        ElMessage({
+          type: 'error',
+          message: '获取ISBN列表失败'
+        })
+      }
+    }
+
+
+    const querySearch = (queryString: string, cb: any) => {
+      const results = queryString
+          ? availableISBNs.value
+              .filter(isbn => isbn.toLowerCase().includes(queryString.toLowerCase()))
+              .map(isbn => ({ value: isbn }))  // 将结果格式化为对象数组
+          : availableISBNs.value.map(isbn => ({ value: isbn }));
+      console.log("查询结果:", results);
+      cb(results);  // 返回给 `el-autocomplete`
+    }
+
+
+
+    const createFilter = (queryString: string) => {
+      return (item: string) => {
+        return item.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+      }
+    }
+
+    const handleSelect = (item: { value: string }) => {
+      console.log('选择的 ISBN:', item.value);  // 提取并打印 item.value
+      sizeForm.isbn = item.value;  // 将 item.value 设置为 sizeForm.isbn
+    }
+
+
+
     const submitForm = () => {
       isbnForm.value.validate((valid: any): boolean => {
         if (valid) {
@@ -75,8 +106,8 @@ export default defineComponent({
           }
           try {
             Service.addBookEntity(record).then((res) => {
-
-            });
+              // 处理成功的响应
+            })
             ElMessage({
               type: 'success',
               message: '添加成功'
@@ -86,7 +117,7 @@ export default defineComponent({
               type: 'warning',
               message: err.message
             })
-            console.log('submit error')
+            console.log('提交出错')
             return false
           }
           sizeForm.isbn = ''
@@ -94,108 +125,44 @@ export default defineComponent({
           sizeForm.place = ''
           return true
         }
-        console.log('submit error')
+        console.log('提交出错')
         return false
-      })
-    }
-    const resetForm = () => {
-      isbnForm.value.resetFields()
-    }
-    const handleBack = () => {
-      router.go(-1)
-    }
-    const handleEdit = (index: any, row: any) => {
-      // eslint-disable-next-line no-console
-      console.log(index, row)
-      tableData[index].edit = true
-    }
-    /**
-     * @description  useXXX写法,代替mixin有待改进的地方
-     * */
-    const checkEmpty = (row: any) => {
-      const result = Object.keys(row).some((key) => row[key] === '')
-      return result
-    }
-    const handleSave = (index: any, row: any): Boolean => {
-      // eslint-disable-next-line no-console
-      console.log(index, row)
-      if (checkEmpty(row)) {
-        ElMessage.warning('保存前请完善信息！')
-        return false
-      }
-      // save current row data and update table data;
-      tableData[index].edit = false
-      tableData[index] = row
-      ElMessage({
-        type: 'success',
-        message: '保存成功'
-      })
-      return true
-    }
-    const handleDelete = (index: any, row: any) => {
-      // eslint-disable-next-line no-console
-      console.log(index, row)
-      tableData.splice(index, 1)
-    }
-    // 新增一条记录
-    const handleAddRecord = () => {
-      tableData.push({
-        province: '',
-        city: '',
-        name: '',
-        address: '',
-        edit: true
       })
     }
 
+    onMounted(() => {
+      fetchISBNs()
+    })
+
     return {
-      handleAddRecord,
-      handleEdit,
-      handleSave,
-      handleDelete,
-      handleBack,
       sizeForm,
       isbnForm,
       submitForm,
-      resetForm,
+      querySearch,
+      handleSelect,
     }
   }
 })
 </script>
 
 <style lang="stylus" scoped>
-.FormInfo{
-    margin-top:20px;
-    .demo-ruleForm{
-        text-align :left;
-    }
-    .info{
-        text-align: left;
+.FormInfo {
+  margin-top: 20px;
+  .demo-ruleForm {
+    text-align: left;
+  }
+  .info {
+    text-align: left;
     padding-left: 20px;
     margin-bottom: 20px;
     font-size: 12px;
-    }
-     .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
   }
-
-  .text {
-    font-size: 14px;
-  }
-
-  .item {
-    margin-bottom: 18px;
-  }
-
   .box-card {
-    width:100%;
-    min-height: 400px; /* 添加最小高度 */
+    width: 100%;
+    min-height: 400px; /* 设置最小高度 */
   }
-
-   .el-row {
-       margin-bottom: 20px;
-     }
+  .el-row {
+    margin-bottom: 20px;
+  }
 }
 </style>
