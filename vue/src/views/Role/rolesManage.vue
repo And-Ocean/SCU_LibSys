@@ -18,8 +18,8 @@
       </el-row>
       <br />
       <el-table v-loading="loading" :data="data" stripe class="table">
-        <el-table-column prop="userName" label="学号" align="center"></el-table-column>
-        <el-table-column prop="nickName" label="用户名" align="center"></el-table-column>
+        <el-table-column prop="userName" label="用户名" align="center"></el-table-column>
+        <el-table-column prop="nickName" label="昵称" align="center"></el-table-column>
         <el-table-column prop="userSex" label="性别" align="center"></el-table-column>
         <el-table-column prop="userPhone" label="电话号码" align="center"></el-table-column>
         <el-table-column prop="userAddress" label="个人住址" align="center"></el-table-column>

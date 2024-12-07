@@ -1,10 +1,10 @@
 <template>
   <div v-loading="loading" class="new">
     <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="100px" title="新增员工">
-      <el-form-item label="学号" prop="userName">
+      <el-form-item label="用户名" prop="userName">
         <el-input v-model="form.userName" placeholder="请输入学号"></el-input>
       </el-form-item>
-      <el-form-item label="用户名" prop="nickName">
+      <el-form-item label="昵称" prop="nickName">
         <el-input v-model="form.nickName" placeholder="请输入用户名"></el-input>
       </el-form-item>
       <el-form-item label="性别" prop="userSex">
