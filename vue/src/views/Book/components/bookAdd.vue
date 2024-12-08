@@ -75,7 +75,7 @@ export default defineComponent({
     const state = reactive({
       bookCategory: []
     })
-    
+
     const sizeForm = reactive({
       isbn: '',
       title: '',

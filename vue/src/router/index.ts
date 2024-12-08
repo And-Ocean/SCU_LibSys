@@ -425,6 +425,58 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: '/adviceBox',
+    component: layout,
+    redirect: '/adviceBox/adviceList',
+    meta: {
+      title: {
+        '/zh-CN': '意见箱',
+        '/en-US': 'adviceList'
+      },
+      icon: 'ic ic-barrage-fill'
+    },
+    children: [
+      {
+        path: '/adviceBox/adviceList',
+        name: 'adviceList',
+        component: () => import('@/views/AdviceBox/components/tableList.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '意见箱',
+            '/en-US': 'adviceBox'
+          },
+          icon: 'ic ic-barrage-fill'
+        }
+      }
+    ]
+  },
+  {
+    path: '/myAdvice',
+    component: layout,
+    redirect: '/myAdvice/adviceList',
+    meta: {
+      title: {
+        '/zh-CN': '我的意见',
+        '/en-US': 'adviceList'
+      },
+      icon: 'ic ic-barrage-fill'
+    },
+    children: [
+      {
+        path: '/myAdvice/adviceList',
+        name: 'adviceList',
+        component: () => import('@/views/MyAdvice/components/tableList.vue'),
+        meta: {
+          title: {
+            '/zh-CN': '我的意见',
+            '/en-US': 'adviceBox'
+          },
+          icon: 'ic ic-barrage-fill'
+        }
+      }
+    ]
+  },
+  {
     path: '/BorrowBook',
     component: layout,
     redirect: '/BorrowBook/borrowed_list',
