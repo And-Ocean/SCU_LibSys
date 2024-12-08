@@ -1,5 +1,4 @@
 <template>
-  <meta name="referrer" content="no-referrer">
   <div class="PersonalSetting">
     <el-row>
       <el-col :offset="1" :span="22">
@@ -39,7 +38,7 @@
                   <div class="avatar">
                     <div class="preview">
                       <span>头像</span>
-                      <img :src="getAvatarUrl(avatar)" />
+                      <img :src="getAvatarUrl(avatar)" referrerPolicy="no-referrer"/>
                     </div>
                     <el-upload
                       class="avatar-uploader"
@@ -71,29 +70,6 @@
                   <div class="opera-btn" @click="showEmailDialog = true"><span>修改</span></div>
                 </div>
               </el-tab-pane>
-              <el-tab-pane label="新消息通知">
-                <div class="set-title">
-                  <span>新消息通知</span>
-                </div>
-                <div class="secure-item">
-                  <div class="secure-info">
-                    <span class="secure-key">系统消息</span>
-                    <span class="secure-value">系统消息将以系统内部渠道通知</span>
-                  </div>
-                  <el-tooltip :content="'是否开启系统消息: '" placement="top">
-                    <el-switch v-model="sysSwitch" active-color="#13ce66" inactive-color="#ff4949" :active-value="true" :inactive-value="false"> </el-switch>
-                  </el-tooltip>
-                </div>
-                <div class="secure-item">
-                  <div class="secure-info">
-                    <span class="secure-key">代办任务</span>
-                    <span class="secure-value">代办任务将以系统内部渠道通知</span>
-                  </div>
-                  <el-tooltip :content="'是否开启代办任务消息: '" placement="top">
-                    <el-switch v-model="taskSwitch" active-color="#13ce66" inactive-color="#ff4949" :active-value="true" :inactive-value="false"> </el-switch>
-                  </el-tooltip>
-                </div>
-              </el-tab-pane>
             </el-tabs>
           </el-card>
         </div>
@@ -109,13 +85,12 @@
 </template>
 <script lang="ts">
 import { ElMessage } from 'element-plus'
-import { computed,defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
+import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import Service from './api/index'
-import LoginService from '../Login/api/index'
-import PersonalEmailEdit  from "@/views/Personal/personalEmailEdit.vue";
-import PersonalPasswordEdit from "@/views/Personal/personalPasswordEdit.vue";
+import PersonalEmailEdit  from "@/views/Personal/components/personalEmailEdit.vue";
+import PersonalPasswordEdit from "@/views/Personal/components/personalPasswordEdit.vue";
 
 // eslint-disable-next-line no-unused-vars
 type VoidNoop = (arg0?: Error) => void
@@ -130,7 +105,7 @@ export default defineComponent({
     const store = useStore()
     const showEmailDialog = ref(false)
     const showPasswordDialog = ref(false)
-    var avatar = computed(() => store.state.permissionModule.avatar)
+    const avatar = localStorage.getItem('avatar')
     const noticeSwitch = reactive({
       userSwitch: false,
       sysSwitch: true,
@@ -146,16 +121,15 @@ export default defineComponent({
     const additionalParams = reactive({
       'accessToken': `${settingForm.accessToken}` // 假设 accessToken 存储在 sessionStorage 中
     });
-    const getAvatarUrl = (avatar: string) => {
-      if(avatar) {
-        new URL(avatar);
+    const getAvatarUrl = (avatar: string|null) => {
+      if(avatar!='null') {
         return avatar;
       }
       else {
-        return '../../assets/avatar-default.jpg';
+        return '/src/assets/avatar-default.jpg';
       }
     }
-    // eslint-disable-next-line no-unused-vars
+
     const validateMobile = (rule: any, value: string, callback: VoidNoop) => {
       if (value === '') {
         callback(new Error('手机号码不可为空哦'))
@@ -190,8 +164,9 @@ export default defineComponent({
               ...settingForm
             }
             const res = await Service.postSetBasicInfo(data)
-            console.log(res)
-            store.dispatch('permissionModule/getUserInfos', res.data)
+            if(res.status === 0) {
+              await store.dispatch('permissionModule/getUserInfos', res.data)
+            }
             updateLoading.value = false
             ElMessage({
               type: 'success',
@@ -214,7 +189,7 @@ export default defineComponent({
         ElMessage('上传头像成功')
         // 更新头像URL到store或其他地方
         console.log(res.data[0])
-        store.dispatch('permissionModule/getUserInfos', res.data[0])
+        await store.dispatch('permissionModule/getUserInfos', res.data[0])
       } else {
         ElMessage.error('上传头像失败: ' + res.message)
       }
