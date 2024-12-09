@@ -243,5 +243,12 @@ export default defineComponent({
       }
     }
   }
+  .btn-container{
+  width:100%;
+  display :flex;
+  flex-direction:row;
+  justify-content :flex-start;
+  align-items :center;
+}
 }
 </style>
