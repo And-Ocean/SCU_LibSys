@@ -1,5 +1,4 @@
 <template>
-  <meta name="referrer" content="no-referrer">
   <div class="page-container">
     <div class="info">
       <el-divider content-position="left">个人中心</el-divider>
@@ -9,7 +8,7 @@
       <el-col :span="20" :offset="1">
         <el-card class="box-card">
           <div class="account-avatar">
-            <img :src="getAvatarUrl(avatar)" alt="个人头像" />
+            <img :src="getAvatarUrl(avatar)" alt="个人头像" referrerPolicy="no-referrer"/>
             <div class="account-name">{{nickname}}</div>
           </div>
           <div class="account-detail">
@@ -57,11 +56,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref, onMounted, computed } from 'vue'
-import { useStore } from '@/store'
-import Service from './api/index'
-import fullcalendar from './components/fullCalendar/index.vue'
-import defaultAvatar from '../../assets/avatar-default.jpg';
+import { defineComponent, reactive, toRefs, ref, onMounted } from 'vue'
 interface stateType {
   dynamicTags: string[]
   inputVisible: boolean
@@ -70,33 +65,28 @@ interface stateType {
 }
 export default defineComponent({
   name: 'PersonalCenter',
-  components: {
-    fullcalendar
-  },
+  components: {},
   setup() {
     const formLabelWidth = ref(100)
     const size = ref('medium')
     const showDesc = ref(true)
-    const store = useStore()
-    const username = computed(() => store.state.permissionModule.username)
-    const nickname = computed(() => store.state.permissionModule.nickname)
-    const role = computed(() => store.state.permissionModule.role)
-    const sex = computed(() => store.state.permissionModule.sex)
-    const phone = computed(() => store.state.permissionModule.phone)
-    const address = computed(() => store.state.permissionModule.address)
-    const avatar = computed(() => store.state.permissionModule.avatar)
+    const username = localStorage.getItem('username')
+    const nickname = localStorage.getItem('nickname')
+    const role = localStorage.getItem('role')
+    const sex = localStorage.getItem('sex')
+    const phone = localStorage.getItem('phone')
+    const address = localStorage.getItem('address')
+    const avatar = localStorage.getItem('avatar')
     // mothods
     /**
      * @description 获取头像
      */
-    const getAvatarUrl = (avatar: string) => {
-      if (avatar) {
-        // 简单的 URL 验证
-        new URL(avatar)
+    const getAvatarUrl = (avatar: string|null) => {
+      if (avatar!='null') {
         return avatar
       }
       else{
-        return defaultAvatar;
+        return '/src/assets/avatar-default.jpg';
       }
     }
 

@@ -39,7 +39,6 @@ export default defineComponent({
     const tabsOption = computed(() => store.getters['tabModule/getTabsOption'])
     const currentIndex = computed(() => store.getters['tabModule/getCurrentIndex'])
     const lang = computed(() => store.getters['settingsModule/getLangState'])
-
     const router = useRouter()
     // mothods
     /**

@@ -148,7 +148,7 @@ public class Auth {
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
                             "/role","/Book","/BorrowBook",
-                            "/personal");
+                            "/personal", "/adviceBox");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
@@ -160,7 +160,7 @@ public class Auth {
                 } else if(role.equals("student")){
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/userInfoByUsername", "/personal", "/Book", "/BorrowBook");
+                            "/userInfoByUsername", "/personal", "/Book", "/BorrowBook", "/myAdvice");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,

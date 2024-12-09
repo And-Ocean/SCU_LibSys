@@ -1,28 +1,16 @@
 <template>
   <div class="table-container">
-    <el-form :inline="true" :model="formInline" class="form-inline">
-      <el-form-item>
-        <el-button type="primary" @click="onAddTodo">添加待办事项</el-button>
-      </el-form-item>
-    </el-form>
-    <el-table ref="filterTableRef" class="table-list" row-key="todo_id" :data="paginatedData" style="width: 100%"
+    <el-table ref="filterTableRef" class="table-list"  :data="paginatedData" style="width: 100%"
               @filter-change="handleFilterChange">
-      <el-table-column
-          prop="todo_ddl"
-          label="截止日期"
-          sortable
-          width="180"
-          column-key="todo_ddl"
-      >
-      </el-table-column>
-      <el-table-column prop="todo_title" label="待办事项标题" width="180" truncated> </el-table-column>
-      <el-table-column prop="todo_ctnt" label="待办事项内容" truncated> </el-table-column>
+      <el-table-column prop="username" label="用户名" width="180" truncated> </el-table-column>
+      <el-table-column prop="ad_title" label="意见标题" truncated> </el-table-column>
+      <el-table-column prop="crt_time" label="创建时间" truncated> </el-table-column>
+
       <el-table-column align="right">
         <template #header>
           <el-input v-model="search" size="mini" placeholder="按标题快速搜索" @input="watchSearch" />
         </template>
         <template #default="scope">
-          <el-button size="mini" @click="modifyPop(scope.row)">修改</el-button>
           <el-button size="mini" @click="detailPop(scope.row)">查看详情</el-button>
           <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定删除该条记录吗？" @confirm="handleDelete(scope.$index, scope.row)">
             <template #reference>
@@ -32,118 +20,48 @@
         </template>
       </el-table-column>
       <el-table-column
-          prop="todo_fin"
-          column-key="todo_fin"
+          prop="replied"
+          column-key="replied"
           label="状态"
           width="100"
           :filters="fin_options"
-          :filtered-value="filters.todo_fin"
+          :filtered-value="filters.replied"
           :filter-multiple="false"
           filter-placement="bottom-end"
       >
         <template #default="scope">
-          <el-tag :type="scope.row.todo_fin === '已完成' ? 'primary' : 'success'" disable-transitions>{{ scope.row.todo_fin}}</el-tag>
+          <el-tag :type="scope.row.replied === '未回复' ? 'primary' : 'success'" disable-transitions>{{ scope.row.replied}}</el-tag>
         </template>
       </el-table-column>
     </el-table>
 
 
-    <!--    V-MODEL!!!!!-->
-    <el-dialog v-model="modifyFormVisible" title="修改待办事项">
+    <el-dialog v-model="detailFormVisible" title="意见详情">
       <el-form :model="form">
-        <el-form-item label="标题" :label-width="formLabelWidth">
-          <el-input v-model="form.todo_title" autocomplete="on"></el-input>
+        <el-form-item label="意见ID&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.ad_id }}
         </el-form-item>
-        <el-form-item label="内容" :label-width="formLabelWidth">
-          <el-input v-model="form.todo_ctnt" autosize type="textarea"/>
+        <el-form-item label="用户名&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.username }}
         </el-form-item>
-        <el-form-item label="截止日期" :label-width="formLabelWidth">
-          <div>
-            <el-col :span="11">
-              <el-date-picker v-model="form.ddl_date"
-                              type="date" placeholder="选择日期" style="width: 100%"
-                              value-format="YYYY-MM-DD"
-              ></el-date-picker>
-            </el-col>
-            <el-col class="line" :span="1">&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
-            <el-col :span="12">
-              <el-time-picker v-model="form.ddl_time" placeholder="选择时间" style="width: 100%"
-                              format="HH:mm" value-format="HH:mm"
-              ></el-time-picker>
-            </el-col>
-          </div>
-        </el-form-item>
-        <el-form-item label="状态" :label-width="formLabelWidth">
-          <el-select v-model="form.todo_fin" placeholder="Select" style="width: 240px">
-            <el-option
-                v-for="item in fin_options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="创建日期" :label-width="formLabelWidth">
-          <div>
-            <el-col :span="11">
-              <el-date-picker v-model="form.crt_date"
-                              type="date" placeholder="选择日期" style="width: 100%"
-                              value-format="YYYY-MM-DD"
-              ></el-date-picker>
-            </el-col>
-            <el-col class="line" :span="1">&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
-            <el-col :span="12">
-              <el-time-picker v-model="form.crt_time" placeholder="选择时间" style="width: 100%"
-                              format="HH:mm" value-format="HH:mm"
-              ></el-time-picker>
-            </el-col>
-          </div>
-        </el-form-item>
-        <el-form-item label="添加者ID" :label-width="formLabelWidth">
-          <el-text class="mx-1" type="info">{{ form.adder_id }}</el-text>
-        </el-form-item>
-        <el-form-item label="待办事项ID" :label-width="formLabelWidth">
-          <el-text class="mx-1" type="info">{{ form.todo_id }}</el-text>
-        </el-form-item>
-        <el-form-item label="从属用戶ID" :label-width="formLabelWidth">
-          <el-text class="mx-1" type="info">{{ form.user_id }}</el-text>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="modifyFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleEdit()">确 定</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog v-model="detailFormVisible" title="待办事项详情">
-      <el-form :model="form">
         <el-form-item label="标题&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.todo_title }}
+          {{ form.ad_title }}
         </el-form-item>
         <el-form-item label="内容&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.todo_ctnt }}
-        </el-form-item>
-        <el-form-item label="截止日期&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.todo_ddl }}
-        </el-form-item>
-        <el-form-item label="状态&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.todo_fin }}
+          {{ form.ad_ctnt }}
         </el-form-item>
         <el-form-item label="创建日期&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.todo_crt }}
+          {{ form.crt_time }}
         </el-form-item>
-        <el-form-item label="添加者ID&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.adder_id }}
+        <el-form-item label="回复情况&nbsp;&nbsp;" :label-width="formLabelWidth">
+          {{ form.replied }}
         </el-form-item>
-        <el-form-item label="待办事項ID&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{ form.todo_id }}
-        </el-form-item>
-        <el-form-item label="从属用戶ID&nbsp;&nbsp;" :label-width="formLabelWidth">
-          {{form.user_id }}
+        <el-form-item label="回复内容" :label-width="formLabelWidth">
+          <el-input v-model="form.reply_ctnt" autosize type="textarea"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="detailFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="handleEdit()">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -168,7 +86,7 @@ import Service from '../api/index'
 import {ElMessage} from "element-plus";
 
 export default defineComponent({
-  name: 'todoTableList',
+  name: 'adviceBoxList',
   directives: {
     permission
   },
@@ -198,17 +116,17 @@ export default defineComponent({
 
       fin_options: [
         {
-          value:'未完成',
-          text:'未完成',
+          value:'未回复',
+          text:'未回复',
         },
         {
-          value:'已完成',
-          text:'已完成',
+          value:'已回复',
+          text:'已回复',
         },
       ],
 
       filters: { // 筛选条件
-        todo_fin: [] // 筛选的状态，可以是 '已完成' 或 '未完成'
+        replied: [] // 筛选的状态，可以是 '已完成' 或 '未完成'
       },
 
 
@@ -224,7 +142,7 @@ export default defineComponent({
     onMounted(() => {
       // eslint-disable-next-line no-console
       page_size_get_set()
-      filterPresetTest()
+      // filterPresetTest()
       getPersonalTodoList()
     })
     // methods
@@ -259,7 +177,7 @@ export default defineComponent({
             state.tableData = []
             // console.log('getPersonalTodoList get')
             // console.log(res)
-            const data = res.data
+            const data = res.data[0]
             state.record_cnt = data.length
             state.tableData = data
             updatePaginatedData()  // 更新分页数据
@@ -293,13 +211,13 @@ export default defineComponent({
       let recordsToFilter = state.tableData;
       if (state.search) {
         recordsToFilter = recordsToFilter.filter((record) =>
-            record.todo_title.toLowerCase().includes(state.search.toLowerCase()) // 忽略大小写
+            record.ad_title.toLowerCase().includes(state.search.toLowerCase()) // 忽略大小写
         );
       }
 
-      if (state.filters.todo_fin[0] && state.filters.todo_fin[0] !== '') {
+      if (state.filters.replied[0] && state.filters.replied[0] !== '') {
         recordsToFilter = recordsToFilter.filter((record) =>
-            record.todo_fin == state.filters.todo_fin[0]
+            record.replied == state.filters.replied[0]
         );
       }
 
@@ -334,11 +252,12 @@ export default defineComponent({
 
     const handleEdit = () => {
       // eslint-disable-next-line no-console
-      state.modifyFormVisible = false
-      let record = state.form
-      record.todo_ddl = [record.ddl_date, record.ddl_time].join(" ")
-      record.todo_crt = [record.crt_date, record.crt_time].join(" ")
-      state.form = {}
+      state.detailFormVisible = false
+      const record = {
+        ad_id: state.form.ad_id,
+        replied: state.form.replied,
+        reply_ctnt: state.form.reply_ctnt,
+      }
       try {
         Service.postModifyTodo(record).then((res) => {
           if (res) {
@@ -353,6 +272,7 @@ export default defineComponent({
         })
       }
     }
+
     const handleDelete = (index: any, row: any) => {
       // eslint-disable-next-line no-console
       // console.log(index, row)
@@ -396,9 +316,9 @@ export default defineComponent({
     }
 
     const handleFilterChange = (filters: any) => {
-      state.filters.todo_fin = filters.todo_fin;   // 只有一个条件在 `filters` 中
-      console.log(state.filters.todo_fin);
-      console.log(filters.todo_fin);
+      // console.log(filters)
+      state.filters.replied = filters.replied;   // 只有一个条件在 `filters` 中
+      // console.log(filters.replied);
       updatePaginatedData(); // 更新分页数据
     }
 

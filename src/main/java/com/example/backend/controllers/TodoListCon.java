@@ -17,29 +17,10 @@ public class TodoListCon {
     @Autowired
     private TodoService my_service;
 
-    @PostMapping("/getRec")
-    public ResponseBase getRec() {
-//        System.out.println("[getRec] receive");
-        ResponseBase res = new ResponseBase();
-        List<TodoRecord> records = my_service.getAllRecords();
-
-        for (TodoRecord record : records) {
-            res.pushData(record);
-        }
-        return res;
-    }
-
     @PostMapping("/modifyRec")
     public ResponseBase modifyRec(@RequestBody TodoRecord record) {
-        int res_code = my_service.updateTodoRecord(record);
+//        int res_code = my_service.updateTodoRecord(record);
 //        System.out.println("modifyRec res_code: " + res_code);
-        return new ResponseBase();
-    }
-
-    @PostMapping("/add")
-    public ResponseBase addRec(@RequestBody TodoRecord record) {
-        int res_code = my_service.insertTodoRecord(record);
-        System.out.println("addRec res_code: " + res_code);
         return new ResponseBase();
     }
 
