@@ -17,7 +17,7 @@
           filter-placement="bottom-end"
       >
         <template #default="scope">
-          <el-tag :type="scope.row.overdue === 1 ? 'danger' : 'success'" disable-transitions>{{ scope.row.overdue ? "逾期": "正常" }}</el-tag>
+          <el-tag :type="scope.row.overdue === 1 ? 'danger' : 'success'" disable-transitions>{{ scope.row.overdue === 1 ? "逾期": "正常" }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="书名" truncated> </el-table-column>
