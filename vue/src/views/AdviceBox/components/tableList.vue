@@ -12,11 +12,11 @@
         </template>
         <template #default="scope">
           <el-button size="mini" @click="detailPop(scope.row)">查看详情</el-button>
-          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定删除该条记录吗？" @confirm="handleDelete(scope.$index, scope.row)">
-            <template #reference>
-              <el-button size="mini" type="danger">删除</el-button>
-            </template>
-          </el-popconfirm>
+<!--          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red" title="确定删除该条记录吗？" @confirm="handleDelete(scope.$index, scope.row)">-->
+<!--            <template #reference>-->
+<!--              <el-button size="mini" type="danger">删除</el-button>-->
+<!--            </template>-->
+<!--          </el-popconfirm>-->
         </template>
       </el-table-column>
       <el-table-column
@@ -261,7 +261,7 @@ export default defineComponent({
       try {
         Service.postModifyTodo(record).then((res) => {
           if (res) {
-            // console.log(res)
+            getPersonalTodoList()
           } else {
           }
         });

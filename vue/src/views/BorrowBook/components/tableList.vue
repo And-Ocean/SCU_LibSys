@@ -319,6 +319,7 @@ export default defineComponent({
       try {
         Service.returnBook(row).then((res) => {
           if (res) {
+            getAllBorrowRecords()
             // console.log(res)
           } else {
           }
