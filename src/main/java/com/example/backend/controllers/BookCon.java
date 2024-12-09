@@ -58,4 +58,10 @@ public class BookCon {
         int res_code = book_entity_service.insertBookEntity(record);
         return new ResponseBase();
     }
+
+    @PostMapping("/deleteBookEntity")
+    public ResponseBase deleteBookEntity(@RequestBody BookEntity record){
+        int res_code = book_entity_service.deleteBookEntity(record);
+        return new ResponseBase();
+    }
 }

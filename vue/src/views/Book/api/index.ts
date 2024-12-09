@@ -121,6 +121,7 @@ class Service {
   }
 
   static deleteBookEntity(record:any) {
+    console.log("index item get: ", record)
     return request({
       url: bookApi.localHost + bookApi.deleteBookEntity,
       method: 'POST',

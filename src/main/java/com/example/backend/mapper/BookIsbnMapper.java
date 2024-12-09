@@ -14,7 +14,7 @@ public interface BookIsbnMapper extends BaseMapper<BookISBN> {
     @Update("UPDATE bookisbn " +
             "SET title = #{title}, price = #{price}, author = #{author}, publisher = #{publisher}, " +
             "borrownum = #{borrownum}, category = #{category}, cover_url = #{cover_url}, summary = #{summary}" +
-            "WHERE isbn = #{isbn}")
+            " WHERE isbn = #{isbn}")
     int updateBookISBN(String isbn, String title, float price, String author,
                                   String publisher, String borrownum, String category,  String cover_url, String summary);
 

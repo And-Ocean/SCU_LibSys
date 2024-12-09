@@ -29,12 +29,13 @@
         </el-popconfirm>
         <el-button v-if="isAdmin" size="mini" type="warning" @click="modifyPop(scope.row)">修改</el-button>
         <el-popconfirm
-            confirm-button-text="确定"
-            cancel-button-text="取消"
+            confirm-button-text="删除全部"
+            cancel-button-text="删除部分"
             icon="el-icon-info"
             icon-color="red"
-            title="确定删除这本书吗？"
+            title="删除全部还是删除部分？"
             @confirm="handleDelete(scope.$index, scope.row)"
+            @cancel="handleEntityDelete(scope.$index, scope.row)"
         >
           <template #reference>
             <el-button v-if="isAdmin" size="mini" type="danger">删除</el-button>
@@ -120,6 +121,17 @@
       </div>
     </el-dialog>
 
+    <el-dialog v-model="deleteEntityFormVisible" title="书籍信息" width="25%">
+      <div v-for="item in borrowList" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span>{{ item.id }}</span>
+        <span>{{ item.place }}</span>
+        <el-button @click="onDeleteBookEntity(item)" type="danger">删除这本</el-button>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="deleteEntityFormVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
     <el-pagination
         :hide-on-single-page="true"
         :current-page="currentPage"
@@ -136,14 +148,20 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from 'vue'
+import {computed, defineComponent, onMounted, reactive, ref, toRaw, toRefs, watch} from 'vue'
 import { useRouter } from 'vue-router'
 import permission from '@/directive/permission'
 import Service from '../api/index'
 import { ElMessage } from "element-plus"
+import {TRUE} from "sass";
 
 export default defineComponent({
   name: 'bookList',
+  computed: {
+    TRUE() {
+      return TRUE
+    }
+  },
   directives: {
     permission
   },
@@ -159,12 +177,14 @@ export default defineComponent({
       search: '',
       modifyFormVisible: false,
       detailFormVisible: false,
+      deleteEntityFormVisible: false,
       form: {},
       isAdmin: false,  // 默认不是管理员
       total: 0, // 总记录数,
       bookCategory: [],
       borrowFormVisible: false,
       borrowList: {},
+      isPopconfirmVisible: false,
     })
     const formInline = reactive({
       user: '',
@@ -313,6 +333,50 @@ export default defineComponent({
       state.tableData.splice(index, 1)
     }
 
+    const handleEntityDelete = (index: any, row: any) => {
+      try {
+        Service.getBorrowableBooks(row).then((res) => {
+          if (res) {
+            state.borrowList = res.data[0];
+            state.deleteEntityFormVisible = true
+          } else {
+          }
+        })
+      } catch (err) {
+        ElMessage({
+          type: 'warning',
+          message: err.message
+        })
+      }
+      state.tableData.splice(index, 1)
+    }
+
+    const onDeleteBookEntity = (item:any) => {
+      // console.log("book item: ", item)
+      const rawItem = toRaw(item)
+      try {
+        Service.deleteBookEntity(rawItem).then((res) => {
+          if (res) {
+            ElMessage({
+              type: 'success',
+              message: "删除成功！"
+            })
+            state.borrowFormVisible = false
+          } else {
+            ElMessage({
+              type: 'warning',
+              message: "请刷新页面"
+            })
+          }
+        })
+      } catch (err) {
+        ElMessage({
+          type: 'warning',
+          message: err.message
+        })
+      }
+    }
+
     const onSubmit = () => {
       // eslint-disable-next-line no-console
       console.log('submit!')
@@ -381,8 +445,10 @@ export default defineComponent({
       onAddBookIsbn,
       onAddBookEntity,
       onBorrowBook,
+      onDeleteBookEntity,
       handleEdit,
       handleDelete,
+      handleEntityDelete,
       filterTableRef,
       resetDateFilter,
       clearFilter,
