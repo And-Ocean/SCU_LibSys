@@ -19,9 +19,9 @@ public interface UserMapper extends BaseMapper<User>{
     List<User> findAllUser();
     @Select("SELECT * FROM user WHERE username LIKE CONCAT('%', #{keyword}, '%') OR nickname LIKE CONCAT('%', #{keyword}, '%')OR sex LIKE CONCAT('%', #{keyword}, '%')OR phone LIKE CONCAT('%', #{keyword}, '%')OR address LIKE CONCAT('%', #{keyword}, '%')")
     List<User> findUserWithKeyword(String keyword);
-    @Insert("INSERT INTO user (username, nickname, sex, phone, address, password, role) VALUES(#{username}, #{nickname}, #{sex}, #{phone}, #{address}, #{password}, #{role})")
+    @Insert("INSERT INTO user (email, username, nickname, sex, phone, address, password, role) VALUES(#{email}, #{username}, #{nickname}, #{sex}, #{phone}, #{address}, #{password}, #{role})")
     //@Options(useGeneratedKeys = true, keyProperty = "id")
-    int adminInsertUser(String username, String nickname,String sex,String phone, String address,String password, int role);
+    int adminInsertUser(String email,String username, String nickname,String sex,String phone, String address,String password, int role);
     @Update("UPDATE user SET password = #{password} WHERE email = #{email} and username=#{username}")
     int updatePassword(String email, String username, String password);
     @Update("UPDATE user SET nickname = #{nickname},phone = #{phone},address= #{address} WHERE id = #{id}")

@@ -160,7 +160,7 @@ public class Auth {
                 } else if(role.equals("student")){
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/userInfoByUsername", "/personal", "/Book", "/BorrowBook", "/myAdvice");
+                            "/personal", "/Book", "/BorrowBook", "/myAdvice");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,
@@ -173,7 +173,7 @@ public class Auth {
                 else{
                     AuthedRoutesResponse.Data data = new AuthedRoutesResponse.Data();
                     List<String> authedRoutes = Arrays.asList(
-                            "/userInfoByUsername", "/personal", "/overdueManagement");
+                            "/personal");
                     data.setAuthedRoutes(authedRoutes);
                     AuthedRoutesResponse response = new AuthedRoutesResponse(
                             0,

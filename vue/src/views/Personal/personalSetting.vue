@@ -166,12 +166,19 @@ export default defineComponent({
             const res = await Service.postSetBasicInfo(data)
             if(res.status === 0) {
               await store.dispatch('permissionModule/getUserInfos', res.data)
+              updateLoading.value = false
+              ElMessage({
+                type: 'success',
+                message: '更新个人信息成功'
+              })
             }
-            updateLoading.value = false
-            ElMessage({
-              type: 'success',
-              message: res.data.message
-            })
+            else{
+              ElMessage({
+                type: 'error',
+                message: res.message
+              })
+              updateLoading.value = false
+            }
           } catch (err) {
             console.error(err)
           }

@@ -1,5 +1,5 @@
 const defaultSetting = {
-  title: 'VUE3-VITE-TEMPLATE',
+  title: '图书馆系统',
   /**
    * @type {boolean} true | false
    * @description whether fix the header
