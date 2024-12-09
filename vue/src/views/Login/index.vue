@@ -11,7 +11,7 @@
           </div>
         </div>
         <div class="bottom">
-          <img :src="working" />
+          <img :src="library" />
         </div>
       </div>
       <div class="login-right">
@@ -25,7 +25,7 @@
 import { defineComponent, ref } from 'vue'
 import viteLogo from '@/assets/logo-vite.svg'
 import vueLogo from '@/assets/logo.png'
-import working from '@/assets/woking.gif'
+import library from '@/assets/library.webp'
 import Login from './components/loginForm.vue'
 import ForgetPassword from './components/forgetPassword.vue'
 
@@ -50,7 +50,7 @@ export default defineComponent({
       handleResetPwd,
       handleToLogin,
       vueLogo,
-      working,
+      library,
       viteLogo
     }
   }
@@ -83,11 +83,11 @@ export default defineComponent({
         .login-left{
             width:50%;
         padding:47px 54px;
-        img{
-           width: 100%;
-           height: auto;
-           margin: 0px 20px;
-        }
+        img {
+            width: 100%;
+            height: auto;
+            margin: 0px 20px;
+          }
         .top{
             display:flex;
             flex-direction:column;

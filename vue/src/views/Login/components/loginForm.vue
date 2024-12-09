@@ -45,7 +45,7 @@
           <el-button type="primary" style="width: 100%" @click="handleRegister()">完成注册</el-button>
         </div>
         <div class="go-login">
-          <span class="to-login" @click="showLogin = !showLogin">已有账号<em>去登陆</em></span>
+          <span class="to-login" @click="showLogin = !showLogin">已有账号?<em>去登陆</em></span>
         </div>
       </el-form-item>
     </el-form>
@@ -344,17 +344,27 @@ export default defineComponent({
     font-size: 12px;
     cursor: pointer;
     display:flex;
-    flex-direction:row ;
+    flex-direction:row;
     justify-content: space-between;
     align-items :center;
+    width:100%;
 
-    .free-register{
-        color: #2878ff;
-      }
+    .free-register {
+      color: #2878ff; /* 更改颜色 */
+      transition: color 0.3s ease; /* 添加过渡效果 */
 
-      .forget-password{
-        color: #9fa2a8;
+      &:hover {
+        color: #1a5fb4; /* 悬停时的颜色 */
       }
+    }
+
+    .forget-password {
+      color: #9fa2a8; /* 更改颜色 */
+      transition: color 0.3s ease; /* 添加过渡效果 */
+      &:hover {
+        color: #6c757d; /* 悬停时的颜色 */
+      }
+    }
     }
     .btn-container{
         width:100%;
