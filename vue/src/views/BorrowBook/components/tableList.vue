@@ -2,22 +2,22 @@
   <div class="table-container">
     <el-form :inline="true" :model="formInline" class="form-inline">
     </el-form>
-    <el-table ref="filterTableRef" class="table-list" row-key="book_id" :data="paginatedData" style="width: 100%">
+    <el-table ref="filterTableRef" class="table-list" row-key="book_id" :data="paginatedData" style="width: 100%"
+              @filter-change="handleFilterChange">
       <el-table-column  width="10" ></el-table-column>
       <el-table-column
           v-if="isAdmin"
           prop="overdue"
+          column-key="overdue"
           label="状态"
           width="100"
-          :filters="[
-          { text: '逾期', value: '1' },
-          { text: '正常', value: '0' }
-        ]"
-          :filter-method="filterStatus"
+          :filters="fin_options"
+          :filtered-value="filters.overdue"
+          :filter-multiple="false"
           filter-placement="bottom-end"
       >
         <template #default="scope">
-          <el-tag :type="scope.row.overdue === '1' ? 'danger' : 'success'" disable-transitions>{{ scope.row.overdue ? "逾期": "正常" }}</el-tag>
+          <el-tag :type="scope.row.overdue === 1 ? 'danger' : 'success'" disable-transitions>{{ scope.row.overdue ? "逾期": "正常" }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="书名" truncated> </el-table-column>
@@ -167,6 +167,20 @@ export default defineComponent({
       isAdmin: false,  // 默认不是管理员
       paginatedData: [],
       record_cnt: 0,
+
+      fin_options: [
+        {
+          value:-1,
+          text:'未逾期',
+        },
+        {
+          value:1,
+          text:'已逾期',
+        },
+      ],
+      filters: { // 筛选条件
+        overdue: [] // 筛选的状态，可以是 '已完成' 或 '未完成'
+      },
     })
     const formInline = reactive({
       user: '',
@@ -202,6 +216,14 @@ export default defineComponent({
             record.username.toLowerCase().includes(state.search.toLowerCase()) // 忽略大小写
         );
       }
+
+      if (state.filters.overdue[0] && state.filters.overdue[0] !== '') {
+        console.log(state.filters.overdue[0])
+        recordsToFilter = recordsToFilter.filter((record) =>
+            record.overdue == state.filters.overdue[0]
+        );
+      }
+
       // 更新分页数据
       // console.log(state.pageSize)
       const start = (state.currentPage - 1) * state.pageSize;
@@ -249,7 +271,10 @@ export default defineComponent({
       }
     }
 
-
+    const handleFilterChange = (filters: any) => {
+      state.filters.overdue = filters.overdue;   // 只有一个条件在 `filters` 中
+      updatePaginatedData(); // 更新分页数据
+    }
 
     const getUserRole = () => {
       state.isAdmin = localStorage.getItem('role') === 'admin';
@@ -359,7 +384,8 @@ export default defineComponent({
       getList,
       getAllBorrowRecords,
       watchSearch,
-      updatePaginatedData
+      updatePaginatedData,
+      handleFilterChange
     }
   }
 })

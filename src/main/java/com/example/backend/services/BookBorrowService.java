@@ -38,7 +38,7 @@ public class BookBorrowService extends ServiceImpl<BookBorrowMapper, BookBorrowe
             if (due_dt.isBefore(today)) {
                 res.add(new BorrowRecordsAdmin(record, 1));
             } else {
-                res.add(new BorrowRecordsAdmin(record, 0));
+                res.add(new BorrowRecordsAdmin(record, -1));    //-1 not overdue
             }
         }
         return res;
