@@ -80,6 +80,7 @@ public class Admin {
                             true,
                             null
                     );
+                    return ResponseEntity.status(HttpStatus.OK).body(response);
                 }
                 else{
                     response = new adminUserInfoResponse(
@@ -88,8 +89,8 @@ public class Admin {
                             false,
                             null
                     );
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
                 }
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             else{
                 adminUserInfoResponse response = new adminUserInfoResponse(

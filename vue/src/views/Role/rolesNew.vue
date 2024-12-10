@@ -27,6 +27,7 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref } from 'vue'
 import Service from "@/views/Role/api";
+import {ElMessage} from "element-plus";
 
 export default defineComponent({
   name: 'RoleNew',
@@ -62,7 +63,7 @@ export default defineComponent({
      * @description 提交新建角色处理函数
      */
     const submitForm = () => {
-      formRef.value.validate((valid: any): boolean => {
+      formRef.value.validate((valid: any)=> {
         if (valid) {
           const data ={
             userName: state.form.userName,
@@ -72,14 +73,16 @@ export default defineComponent({
             userAddress: state.form.userAddress,
             accessToken: sessionStorage.getItem('accessToken')
           }
-          Service.postAdminAddUser(data).then(res => {
+           Service.postAdminAddUser(data).then(res => {
             if(res.status === 0) {
+              ElMessage({
+                type: 'success',
+                message: res.message
+              })
               emit('success')
             }
           })
-          return true
         }
-        return false
       })
     }
     return {
